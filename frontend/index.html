@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillAlign - PS 26134 | Smart India Hackathon 2026</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" onclick="navigateTo('home')">
+                <span class="logo-icon">&#9672;</span>
+                SkillAlign
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home')">Home</a>
+                <a href="#" class="nav-link" data-page="analytics" onclick="navigateTo('analytics')">Analytics</a>
+                <a href="#" class="nav-link" data-page="dashboard" onclick="navigateTo('dashboard')">Dashboard</a>
+                <a href="#" class="nav-link" data-page="skillgap" onclick="navigateTo('skillgap')">Skill Gap</a>
+                <a href="#" class="nav-link" data-page="about" onclick="navigateTo('about')">About</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main id="mainContent">
+        <!-- HOME PAGE -->
+        <section id="page-home" class="page active">
+            <div class="hero">
+                <div class="hero-bg"></div>
+                <div class="hero-content">
+                    <div class="hero-badge">PS 26134 - Smart India Hackathon 2026</div>
+                    <h1 class="hero-title">
+                        Bridging the <span class="gradient-text">Skill Gap</span><br>
+                        Between Education & Industry
+                    </h1>
+                    <p class="hero-subtitle">
+                        Analyzing job market trends to align skill development with industry demands.
+                        Powered by Government of Maharashtra.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="navigateTo('analytics')">
+                            Explore Analytics
+                            <span class="btn-arrow">&rarr;</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="navigateTo('about')">
+                            Learn More
+                        </button>
+                    </div>
+                    <div class="hero-stats" id="heroStats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="statJobs">--</span>
+                            <span class="stat-label">Jobs Analyzed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="statSkills">--</span>
+                            <span class="stat-label">Skills Tracked</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="statLocations">--</span>
+                            <span class="stat-label">Cities Covered</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="homeFeatures">
+                <div class="container">
+                    <h2 class="section-title">What We Analyze</h2>
+                    <div class="features-grid">
+                        <div class="feature-card" onclick="navigateTo('analytics')">
+                            <div class="feature-icon">&#128269;</div>
+                            <h3>Skill Demand Analysis</h3>
+                            <p>Identify the most in-demand skills across industries and job roles</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('analytics')">
+                            <div class="feature-icon">&#128200;</div>
+                            <h3>Experience Mapping</h3>
+                            <p>Understand experience requirements and salary distributions</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('analytics')">
+                            <div class="feature-icon">&#128205;</div>
+                            <h3>Geographic Insights</h3>
+                            <p>Discover where opportunities are concentrated across India</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('dashboard')">
+                            <div class="feature-icon">&#9881;</div>
+                            <h3>Interactive Dashboard</h3>
+                            <p>Visualize data with charts, filters, and real-time updates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ANALYTICS PAGE -->
+        <section id="page-analytics" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Skill Analytics</h1>
+                    <p class="page-subtitle">Data-driven insights from job market analysis</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="analytics-grid">
+                    <div class="chart-card full-width">
+                        <h3 class="chart-title">Top Skills in Demand</h3>
+                        <div class="chart-container" id="skillsChart">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Experience Distribution</h3>
+                        <div class="chart-container" id="experienceChart">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Job Locations</h3>
+                        <div class="chart-container" id="locationsChart">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card full-width">
+                        <h3 class="chart-title">Key Insights</h3>
+                        <div class="insights-container" id="insightsContainer">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD PAGE -->
+        <section id="page-dashboard" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Interactive Dashboard</h1>
+                    <p class="page-subtitle">Explore and filter job market data</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="dashboard-controls">
+                    <div class="filter-group">
+                        <label>Location</label>
+                        <select id="filterLocation" onchange="applyFilters()">
+                            <option value="all">All Locations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Experience</label>
+                        <select id="filterExperience" onchange="applyFilters()">
+                            <option value="all">All Levels</option>
+                            <option value="0-2">Fresher (0-2 yrs)</option>
+                            <option value="3-5">Mid-level (3-5 yrs)</option>
+                            <option value="6+">Senior (6+ yrs)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Search Skills</label>
+                        <input type="text" id="filterSkill" placeholder="e.g. Python" oninput="applyFilters()">
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="dash-card">
+                        <h4>Skills Heatmap</h4>
+                        <div id="dashSkillsHeatmap"><div class="loading-spinner"></div></div>
+                    </div>
+                    <div class="dash-card">
+                        <h4>Salary vs Experience</h4>
+                        <div id="dashSalaryExp"><div class="loading-spinner"></div></div>
+                    </div>
+                    <div class="dash-card full-width">
+                        <h4>All Job Postings</h4>
+                        <div id="dashJobTable"><div class="loading-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SKILL GAP PAGE -->
+        <section id="page-skillgap" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Skill Gap Analyzer</h1>
+                    <p class="page-subtitle">Select your education level to see what industry skills you're missing</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="curriculum-selector">
+                    <div class="selector-card">
+                        <h3>Select Your Education</h3>
+                        <p class="selector-desc">Choose your education level, then select your board/university</p>
+                        <div class="filter-group" style="width:100%">
+                            <label>Education Level</label>
+                            <select id="educationLevel" onchange="onLevelChange()">
+                                <option value="">-- Select your education level --</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label id="subLabel">Board / University</label>
+                            <select id="educationSub" onchange="onSubChange()" disabled>
+                                <option value="">-- First select level above --</option>
+                            </select>
+                        </div>
+                        <div id="curriculumInfo" class="curriculum-info" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div id="gapResults" style="display:none;">
+                    <div class="gap-summary" id="gapSummary"></div>
+                    <div class="gap-grid">
+                        <div class="chart-card">
+                            <h3 class="chart-title">Skills You Have (from your curriculum)</h3>
+                            <div id="gapHaveSkills"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title">Skills You Need to Learn (GAP)</h3>
+                            <div id="gapNeedSkills"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3 class="chart-title">Industry Demand vs Your Education</h3>
+                            <div id="gapComparison"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3 class="chart-title">Domain-Wise Gap Analysis</h3>
+                            <div id="gapDomainAnalysis"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3 class="chart-title">Recommendations</h3>
+                            <div id="gapRecommendations"><div class="loading-spinner"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT PAGE -->
+        <section id="page-about" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">About SkillAlign</h1>
+                    <p class="page-subtitle">Smart India Hackathon 2026 - Problem Statement 26134</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-card">
+                        <h3>Problem Statement</h3>
+                        <p>PS 26134 focuses on Skill Development & Industry Alignment for the Government of Maharashtra. The challenge is to bridge the gap between what educational institutions teach and what industries actually require.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>Our Solution</h3>
+                        <p>SkillAlign analyzes real job market data to identify skill gaps, experience requirements, and geographic distribution of opportunities. This enables targeted skill development programs and better career guidance.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>Tech Stack</h3>
+                        <div class="tech-stack">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">FastAPI</span>
+                            <span class="tech-tag">SQLite</span>
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">Vanilla JS</span>
+                        </div>
+                    </div>
+                    <div class="about-card">
+                        <h3>Team</h3>
+                        <p>Smart India Hackathon 2026 participants working on Government of Maharashtra's skill development initiative.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 SkillAlign - PS 26134 | Smart India Hackathon 2026 | Government of Maharashtra</p>
+        </div>
+    </footer>
+
+    <script src="src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+*.csv
+*.pkl
+__pycache__/
+*.pyc
+*.db
+*.env
+node_modules/
+venv/
+.venv/
+*.log

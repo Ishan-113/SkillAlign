@@ -1,0 +1,12 @@
+{
+  "builds": [
+    {
+      "src": "**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "https://skillalign-api.onrender.com/api/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
