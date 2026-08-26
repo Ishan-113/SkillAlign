@@ -6,7 +6,7 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "https://skillalign-api.onrender.com/api/$1" },
+    { "src": "/api/(.*)", "dest": "https://skillalign-us1c.onrender.com/api/$1" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
