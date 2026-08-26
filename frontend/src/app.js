@@ -1,6 +1,6 @@
 const API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:8000/api'
-    : 'https://skillalign-api.onrender.com/api';
+    : 'https://skillalign-us1c.onrender.com/api';
 let currentPage = 'home';
 let cachedJobs = [];
 
