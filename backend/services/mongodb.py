@@ -1,4 +1,5 @@
 import os
+import traceback
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
@@ -13,15 +14,17 @@ db = None
 
 async def connect_db():
     global client, db
-    client = AsyncIOMotorClient(MONGO_URI)
-    db = client[DB_NAME]
-    await db.jobs.create_index("job_id", unique=True, sparse=True)
-    await db.jobs.create_index("skills")
-    await db.jobs.create_index("location")
-    await db.jobs.create_index("experience_years")
-    await db.jobs.create_index("posting_date")
-    print(f"Connected to MongoDB: {DB_NAME}")
-    return db
+    try:
+        client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        db = client[DB_NAME]
+        await db.command("ping")
+        print(f"Connected to MongoDB: {DB_NAME}")
+        return db
+    except Exception as e:
+        print(f"MongoDB connection failed: {e}")
+        traceback.print_exc()
+        db = None
+        return None
 
 
 def get_db():

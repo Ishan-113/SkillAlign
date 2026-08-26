@@ -1,12 +1,23 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from services.mongodb import get_db
 
 router = APIRouter()
 
 
+def check_db():
+    db = get_db()
+    if not db:
+        return None, JSONResponse({"error": "Database not connected"}, status_code=503)
+    return db, None
+
+
 @router.get("/experience")
 async def get_experience_distribution():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"experience_years": 1, "_id": 0}).to_list(length=None)
 
     exp_ranges = {"0-2 years": 0, "3-5 years": 0, "6-8 years": 0, "8+ years": 0}
@@ -37,7 +48,10 @@ async def get_experience_distribution():
 
 @router.get("/experience/salary")
 async def get_salary_by_experience():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"experience_years": 1, "salary_range": 1, "_id": 0}).to_list(length=None)
 
     salary_map = {}

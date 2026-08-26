@@ -1,12 +1,23 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from services.mongodb import get_db
 
 router = APIRouter()
 
 
+def check_db():
+    db = get_db()
+    if not db:
+        return None, JSONResponse({"error": "Database not connected"}, status_code=503)
+    return db, None
+
+
 @router.get("/locations")
 async def get_location_distribution():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"location": 1, "_id": 0}).to_list(length=None)
 
     location_count = {}
@@ -28,7 +39,10 @@ async def get_location_distribution():
 
 @router.get("/locations/companies")
 async def get_companies_by_location():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"location": 1, "company": 1, "_id": 0}).to_list(length=None)
 
     loc_companies = {}

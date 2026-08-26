@@ -1,12 +1,23 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from services.mongodb import get_db
 
 router = APIRouter()
 
 
+def check_db():
+    db = get_db()
+    if not db:
+        return None, JSONResponse({"error": "Database not connected. Check MongoDB Atlas IP whitelist."}, status_code=503)
+    return db, None
+
+
 @router.get("/skills")
 async def get_skills_analysis():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"skills": 1, "_id": 0}).to_list(length=None)
 
     skill_count = {}
@@ -31,7 +42,10 @@ async def get_skills_analysis():
 
 @router.get("/skills/top")
 async def get_top_skills(limit: int = 10):
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     rows = await db.jobs.find({}, {"skills": 1, "_id": 0}).to_list(length=None)
 
     skill_count = {}

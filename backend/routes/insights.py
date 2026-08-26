@@ -1,12 +1,23 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from services.mongodb import get_db
 
 router = APIRouter()
 
 
+def check_db():
+    db = get_db()
+    if not db:
+        return None, JSONResponse({"error": "Database not connected"}, status_code=503)
+    return db, None
+
+
 @router.get("/insights")
 async def get_key_insights():
-    db = get_db()
+    db, err = check_db()
+    if err:
+        return err
+
     jobs = await db.jobs.find({}).to_list(length=None)
 
     total_jobs = len(jobs)
