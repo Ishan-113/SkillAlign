@@ -40,4 +40,7 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+          # Preferred live source for curriculum data (raw GitHub JSON) -> falls
+          # back to the committed curriculum_source/ file when not set/unreachable.
+          CURRICULUM_ONLINE_URL: ${{ secrets.CURRICULUM_ONLINE_URL }}
         run: python scripts/update_curriculum.py

@@ -1,50 +1,49 @@
-"""Online curriculum skills source (NPTEL / SWAYAM / AICTE-aligned).
+"""Online curriculum skills source (real JSON).
 
-There is no clean public JSON API from SWAYAM/NPTEL that maps national MOOC
-offerings back to a university curriculum's taught skills, and scraping their
-HTML/spreadsheets inside a cron job is fragile and can silently fail a monthly
-run.
+The monthly ingestion fetches a machine-readable JSON dataset from
+``CURRICULUM_ONLINE_URL`` (or the committed ``curriculum_source/`` file when the
+URL is empty). Each entry is keyed by the curriculum ``name`` and carries the
+fields the application's skill-gap analysis reads (notably ``all_skills``), so
+the job can merge genuinely refreshed data into ``curricula``.
 
-This provider therefore uses a stable, curated mapping of emerging skills that
-AICTE/NPTEL/SWAYAM actively promote. Each month the job merges these into the
-matching curriculum's ``all_skills`` so the app's skill-gap analysis stays
-current with national education-program trends.
+Two ways to supply the source, in priority order:
+  1. ``CURRICULUM_ONLINE_URL`` - a hosted JSON endpoint (e.g. GitHub raw/Pages or a
+     Render route). Preferred when set.
+  2. The checked-out ``curriculum_source/curriculum_updates.json`` - used when the
+     repo itself is the source of truth (e.g. the GitHub Actions runner).
 
-An optional ``CURRICULUM_ONLINE_URL`` environment variable can point the job at
-a future JSON/SV recuperable source; when set and reachable it is preferred and
-the curated map is a fallback. On any failure the job returns nothing so the
-caller never wipes existing data.
+Expected JSON shape (see ``scripts/build_curriculum_source.py``):
+    {
+      "source": "nptel_swayam_aicte",
+      "version": 1,
+      "generatedAt": "<ISO timestamp>",
+      "curricula": {
+        "<curriculum name>": {
+          "type": "...",
+          "university": "...",
+          "semesters": 8,
+          "all_skills": [...],
+          "online_skills": [...]
+        }
+      }
+    }
+
+On any failure (unreachable, invalid shape, missing data) the job returns nothing,
+so the caller never wipes existing curricula.
 """
 
 import os
 import json
+from pathlib import Path
 from datetime import datetime, timezone
 
 import requests
 
-from . import config
-
-# Emerging-skill themes aligned with NPTEL/SWAYAM/AICTE national programmes.
-# Keyed by a substring matched case-insensitively against the curriculum name,
-# so the same mapping works across B.E./B.Tech/BCA/MCA/etc. of a given branch.
-CURRICULUM_SKILL_THEMES = {
-    "computer": {
-        "generative ai", "llm", "machine learning", "deep learning",
-        "data structures", "algorithms", "operating systems", "sql",
-        "python", "cloud computing", "cyber security", "docker",
-    },
-    "data": {
-        "python", "sql", "pandas", "machine learning", "data science",
-        "statistics", "big data", "cloud computing",
-    },
-    "information technology": {
-        "python", "java", "sql", "web development", "cloud computing",
-        "networking", "cyber security", "data structures", "algorithms",
-    },
-    "electronics": {
-        "digital logic", "microprocessor", "embedded systems", "iot",
-        "signals and systems", "python",
-    },
+# Union of every field the ingest layer is allowed to merge from the source.
+# ``name`` is intentionally excluded because the URL entries are keyed by name.
+ALLOWED_FIELDS = {
+    "type", "university", "semesters", "all_skills",
+    "skills_by_semester", "online_skills", "onlineProvider",
 }
 
 
@@ -52,52 +51,82 @@ def _now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
-def _theme_for_curriculum(name: str) -> set:
-    lower = name.lower()
-    for key, skills in CURRICULUM_SKILL_THEMES.items():
-        if key in lower:
-            return skills
-    return set(CURRICULUM_SKILL_THEMES.get("computer", set()))
+def _repo_file_candidates():
+    """Path(s) to the committed curriculum JSON relative to this repo."""
+    here = Path(__file__).resolve()
+    roots = [here.parents[2], here.parents[3]]  # backend/ingestion -> repo root
+    for root in roots:
+        candidate = root / "curriculum_source" / "curriculum_updates.json"
+        if candidate.exists():
+            return candidate
+    return None
 
 
-def _fetch_from_url():
-    """Optional online JSON source. Returns a dict {name: {patch fields}} or None."""
-    url = os.getenv("CURRICULUM_ONLINE_URL", "").strip()
-    if not url:
-        return None
+def _load_from_url(url):
+    """Fetch and parse the hosted JSON source. Returns a dict on success."""
     try:
-        resp = requests.get(url, timeout=15)
+        resp = requests.get(url, timeout=20)
         resp.raise_for_status()
         return resp.json()
     except Exception:
         return None
 
 
-def fetch_online_curriculum_updates():
-    """Return {curriculum_name: {field: value}} patches for the monthly run.
-
-    Tries the optional ``CURRICULUM_ONLINE_URL`` first; falls back to the
-    curated AICTE/NPTEL-aligned skill themes. Returns {} on total failure so
-    the caller leaves existing data untouched.
-    """
-    remote = _fetch_from_url()
-    if remote:
-        return remote
-
-    # Build a mapping of every curriculum we know about to its theme skills.
+def _load_from_file(path):
     try:
-        from services.curriculum_db_seed import INDIAN_CURRICULA
+        return json.loads(Path(path).read_text(encoding="utf-8"))
     except Exception:
-        INDIAN_CURRICULA = {}
+        return None
 
-    from services.skills_taxonomy import normalize_skill_list
+
+def _extract_updates(payload) -> dict:
+    """Validate a payload and return {curriculum_name: {patch fields}}."""
+    if not isinstance(payload, dict):
+        return {}
+    curricula = payload.get("curricula")
+    if not isinstance(curricula, dict) or not curricula:
+        return {}
 
     updates = {}
-    for name in INDIAN_CURRICULA:
-        theme = _theme_for_curriculum(name)
-        updates[name] = {
-            "online_skills": normalize_skill_list(sorted(theme)),
-            "onlineProvider": "nptel_swayam_aicte",
-            "onlineCheckedAt": _now_iso(),
-        }
+    for name, data in curricula.items():
+        if not isinstance(data, dict):
+            continue
+        patch = {k: v for k, v in data.items() if k in ALLOWED_FIELDS}
+        patch["onlineProvider"] = patch.get("onlineProvider") or payload.get("source") or "online"
+        patch["onlineCheckedAt"] = _now_iso()
+        updates[name] = patch
+    return updates
+
+
+def fetch_online_curriculum_updates():
+    """Return {curriculum_name: {field: value}} patches merged from the JSON source.
+
+    Tries ``CURRICULUM_ONLINE_URL`` first, then the committed repo file. Returns {}
+    on any total failure so existing curricula are never lost.
+    """
+    url = os.getenv("CURRICULUM_ONLINE_URL", "").strip()
+    payload = None
+    used = None
+
+    if url:
+        payload = _load_from_url(url)
+        used = "url"
+
+    if not payload:
+        repo_file = _repo_file_candidates()
+        if repo_file:
+            payload = _load_from_file(repo_file)
+            used = "repo_file"
+
+    if not payload:
+        return {}
+
+    updates = _extract_updates(payload)
+    if not updates:
+        return {}
+
+    # Stamp provenance so the MongoDB docs record where the data came from.
+    for patch in updates.values():
+        patch.setdefault("source", payload.get("source") or "online")
+        patch["onlineSource"] = used
     return updates
