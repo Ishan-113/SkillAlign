@@ -7,7 +7,7 @@ router = APIRouter()
 
 def check_db():
     db = get_db()
-    if not db:
+    if db is None:
         return None, JSONResponse({"error": "Database not connected"}, status_code=503)
     return db, None
 

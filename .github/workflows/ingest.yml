@@ -1,0 +1,43 @@
+name: Data Ingestion
+
+on:
+  schedule:
+    # Update jobs every 6 hours (configurable via env; the UI reads actual data,
+    # never triggering external APIs).
+    - cron: "17 */6 * * *"
+    # Update curriculum on the 1st of every month (universities change rarely).
+    - cron: "0 3 1 * *"
+  workflow_dispatch: {}
+
+jobs:
+  update_jobs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Run job ingestion
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+        run: python scripts/update_jobs.py
+
+  update_curriculum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Run curriculum update
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+        run: python scripts/update_curriculum.py

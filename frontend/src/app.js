@@ -6,7 +6,29 @@ let cachedJobs = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     loadHeroStats();
+    loadFreshness();
 });
+
+async function loadFreshness() {
+    const data = await fetchAPI('/data/freshness');
+    const banner = document.getElementById('freshnessBar');
+    if (!banner || !data) return;
+    const jobsStatus = data.jobs?.last_update_status;
+    const jobsOk = jobsStatus === 'success' || jobsStatus === 'no_data';
+    const barrier = document.getElementById('freshnessJobs');
+    const currBar = document.getElementById('freshnessCurr');
+    if (barrier) {
+        barrier.innerHTML = data.jobs?.last_update
+            ? `Jobs last updated: ${new Date(data.jobs.last_update).toLocaleString()} · ${data.jobs.active_jobs ?? 0} active jobs`
+            : 'Jobs: not yet updated';
+        barrier.classList.toggle('stale', !jobsOk);
+    }
+    if (currBar) {
+        currBar.innerHTML = data.curriculum?.last_check
+            ? `Curriculum last checked: ${new Date(data.curriculum.last_check).toLocaleString()}`
+            : 'Curriculum: not yet checked';
+    }
+}
 
 function navigateTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -181,41 +203,25 @@ async function loadJobTable() {
     const container = document.getElementById('dashJobTable');
     container.innerHTML = '<div class="loading-spinner"></div>';
 
-    const skillsData = await fetchAPI('/skills');
-    if (!skillsData || !skillsData.all_skills) {
+    const data = await fetchAPI('/data/jobs?limit=200');
+    if (!data || !data.jobs) {
         container.innerHTML = '<p>Failed to load jobs</p>';
         return;
     }
 
-    const expData = await fetchAPI('/experience/salary');
-    const locData = await fetchAPI('/locations/companies');
-
-    cachedJobs = [];
-    let id = 1;
-
-    if (expData && expData.salary_by_experience) {
-        for (const expGroup of expData.salary_by_experience) {
-            for (const salary of expGroup.salary_ranges) {
-                cachedJobs.push({
-                    id: id++,
-                    exp: expGroup.experience_years,
-                    salary: salary
-                });
-            }
-        }
-    }
-
-    if (locData && locData.companies_by_location) {
-        const locs = Object.keys(locData.companies_by_location);
-        cachedJobs.forEach((job, i) => {
-            job.location = locs[i % locs.length];
-            job.company = locData.companies_by_location[job.location][i % locData.companies_by_location[job.location].length];
-        });
-    }
+    cachedJobs = data.jobs.map(job => ({
+        id: job.externalId || job.title,
+        exp: job.experience_years ?? 0,
+        salary: job.salary_range || '-',
+        location: job.location || '-',
+        company: job.company || '-',
+        title: job.title || '-',
+        skills: job.skills || '',
+    }));
 
     container.innerHTML = `
         <table class="job-table">
-            <thead><tr><th>#</th><th>Experience</th><th>Company</th><th>Location</th><th>Salary</th></tr></thead>
+            <thead><tr><th>Title</th><th>Experience</th><th>Company</th><th>Location</th><th>Salary</th></tr></thead>
             <tbody id="jobTableBody"></tbody>
         </table>`;
 
@@ -236,10 +242,13 @@ function renderJobRows() {
         else if (expFilter === '3-5') filtered = filtered.filter(j => j.exp >= 3 && j.exp <= 5);
         else if (expFilter === '6+') filtered = filtered.filter(j => j.exp >= 6);
     }
+    if (skillFilter) {
+        filtered = filtered.filter(j => (j.skills || '').toLowerCase().includes(skillFilter));
+    }
 
     tbody.innerHTML = filtered.slice(0, 50).map(j => `
         <tr>
-            <td>${j.id}</td>
+            <td>${j.title}</td>
             <td>${j.exp} yrs</td>
             <td>${j.company || '-'}</td>
             <td>${j.location || '-'}</td>
@@ -286,6 +295,17 @@ const EDUCATION_TREE = {
     "Master's Degree (M.Tech/MCA/M.Sc)": {
         type: "postgraduate",
         filter: ["MCA - VTU", "MCA - JNTU Hyderabad", "Online MSc Data Science - Manipal"]
+    },
+    "Other Engineering Branches (B.E./B.Tech)": {
+        type: "degree",
+        filter: ["B.E. ECE - VTU", "B.E. ECE - Anna University", "B.Tech EEE - NIT Trichy",
+                 "B.E. Mechanical - VTU", "B.E. Civil - Anna University", "B.Tech IT - NIT Trichy",
+                 "B.Tech CSE (AI & ML) - SRM University", "B.Tech CSE (Data Science) - VIT",
+                 "B.E. E&TC - Pune University"]
+    },
+    "Diploma - Other Branches": {
+        type: "diploma",
+        filter: ["Diploma in Mechanical - MSBTE", "Diploma in Electrical - MSBTE"]
     },
     "Online / Self-Learned": {
         type: "online",

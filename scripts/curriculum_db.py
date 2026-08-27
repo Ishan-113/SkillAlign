@@ -1237,6 +1237,158 @@ INDIAN_CURRICULA = {
             "DBMS", "Software Engineering", "Web Technologies", "Data Analytics",
             "Mathematics", "Statistics", "Discrete Mathematics"
         ]
+    },
+
+    "B.E. ECE - VTU": {
+        "type": "degree",
+        "university": "Visvesvaraya Technological University (VTU)",
+        "semesters": 8,
+        "skills": {
+            "1st Sem": ["Engineering Mathematics - I", "Engineering Physics", "Basic Electronics", "Programming in C", "Engineering Graphics"],
+            "2nd Sem": ["Engineering Mathematics - II", "Engineering Chemistry", "Network Analysis", "Digital Logic Design", "Data Structures"],
+            "3rd Sem": ["Signals and Systems", "Electronic Circuits", "Digital Electronics", "Analog Communication", "Electromagnetic Field Theory"],
+            "4th Sem": ["Digital Signal Processing", "Microprocessors and Microcontrollers", "Control Systems", "Digital Communication", "VLSI Design"],
+            "5th Sem": ["Communication Systems", "Antennas and Propagation", "Embedded Systems", "Computer Networks", "Wireless Communication"],
+            "6th Sem": ["Optical Communication", "Satellite Communication", "IoT and Applications", "Power Electronics", "Microwave Engineering"],
+            "7th Sem": ["Radar Systems", "Information Theory and Coding", "Project Phase - I", "Professional Elective"],
+            "8th Sem": ["Project Phase - II", "Seminar", "VLSI Testing"]
+        },
+        "core_skills_taught": ["C", "C++", "Python", "MATLAB", "Digital Electronics", "Analog Communication", "Digital Signal Processing", "VLSI", "Embedded Systems", "IoT", "Computer Networks", "Microprocessors", "Control Systems", "Analog Circuits", "Signal Processing", "Circuit Analysis"]
+    },
+
+    "B.E. ECE - Anna University": {
+        "type": "degree",
+        "university": "Anna University, Chennai",
+        "semesters": 8,
+        "skills": {
+            "1st Sem": ["Engineering Mathematics - I", "Engineering Physics", "Engineering Chemistry", "Programming in C", "Basic Electrical Engineering"],
+            "2nd Sem": ["Engineering Mathematics - II", "Data Structures", "Circuit Theory", "Digital Logic Circuits", "Object Oriented Programming"],
+            "3rd Sem": ["Signals and Systems", "Electronic Circuits - I", "Electromagnetic Fields", "Digital Electronics", "Linear Integrated Circuits"],
+            "4th Sem": ["Analog Communication", "Electronic Circuits - II", "Control Systems", "Microprocessors", "Digital Signal Processing"],
+            "5th Sem": ["Digital Communication", "Antennas and Wave Propagation", "VLSI Design", "Communication Networks", "Embedded Systems"],
+            "6th Sem": ["Optical Communication", "Wireless Communication", "Microwave Engineering", "Satellite Communication", "IoT"],
+            "7th Sem": ["Radar and Navigational Aids", "Professional Elective", "Project Work Phase - I"],
+            "8th Sem": ["Project Work Phase - II", "Seminar"]
+        },
+        "core_skills_taught": ["C", "Java", "Python", "MATLAB", "Circuit Theory", "Digital Electronics", "Analog Communication", "Digital Signal Processing", "VLSI", "Embedded Systems", "IoT", "Communication Networks", "Microprocessors", "Control Systems", "Microwave Engineering", "Optical Communication"]
+    },
+
+    "B.Tech EEE - NIT Trichy": {
+        "type": "degree",
+        "university": "NIT Trichy",
+        "semesters": 8,
+        "skills": {
+            "Core": ["Engineering Mathematics", "Electric Circuits", "Electromagnetic Fields", "Electrical Machines - I", "Electrical Machines - II", "Power Systems", "Control Systems", "Power Electronics", "Digital Electronics", "Microprocessors", "Signals and Systems", "Measurement and Instrumentation", "Electric Drives", "Renewable Energy Systems", "High Voltage Engineering"],
+            "Math": ["Linear Algebra", "Probability and Statistics", "Numerical Methods", "Discrete Mathematics"],
+            "Lab": ["Electrical Machines Lab", "Power Systems Lab", "Power Electronics Lab", "Control Systems Lab", "Microprocessor Lab"]
+        },
+        "core_skills_taught": ["C", "C++", "Python", "MATLAB", "Electrical Machines", "Power Systems", "Power Electronics", "Control Systems", "Electric Circuits", "Electromagnetic Fields", "Electric Drives", "Renewable Energy", "High Voltage Engineering", "Measurement and Instrumentation", "Signal Processing", "Digital Electronics"]
+    },
+
+    "B.E. Mechanical - VTU": {
+        "type": "degree",
+        "university": "Visvesvaraya Technological University (VTU)",
+        "semesters": 8,
+        "skills": {
+            "1st Sem": ["Engineering Mathematics - I", "Engineering Physics", "Engineering Chemistry", "Programming in C", "Engineering Graphics"],
+            "2nd Sem": ["Engineering Mathematics - II", "Engineering Mechanics", "Materials Science", "Computer Aided Drawing", "Basic Electrical Engineering"],
+            "3rd Sem": ["Thermodynamics", "Mechanics of Materials", "Manufacturing Processes", "Machine Drawing", "Fluid Mechanics"],
+            "4th Sem": ["Applied Thermodynamics", "Kinematics of Machines", "Metal Cutting and Machine Tools", "Heat Transfer", "Strength of Materials"],
+            "5th Sem": ["Dynamics of Machines", "Design of Machine Elements", "Computer Aided Design", "Metrology and Measurements", "Internal Combustion Engines"],
+            "6th Sem": ["Machine Design", "Robotics", "Automobile Engineering", "Operations Research", "Additive Manufacturing"],
+            "7th Sem": ["Finite Element Analysis", "Mechanical Vibrations", "Project Phase - I", "Professional Elective"],
+            "8th Sem": ["Project Phase - II", "Seminar", "Industry Internship"]
+        },
+        "core_skills_taught": ["C", "Python", "MATLAB", "SolidWorks", "AutoCAD", "CATIA", "Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Machine Design", "Manufacturing", "Robotics", "Finite Element Analysis", "CAD", "Materials Science", "Metrology"]
+    },
+
+    "B.E. Civil - Anna University": {
+        "type": "degree",
+        "university": "Anna University, Chennai",
+        "semesters": 8,
+        "skills": {
+            "1st Sem": ["Engineering Mathematics - I", "Engineering Physics", "Engineering Chemistry", "Programming in C", "Basic Civil Engineering"],
+            "2nd Sem": ["Engineering Mathematics - II", "Engineering Mechanics", "Surveying - I", "Fluid Mechanics", "Construction Materials"],
+            "3rd Sem": ["Strength of Materials", "Surveying - II", "Building Materials and Technology", "Soil Mechanics", "Structural Analysis - I"],
+            "4th Sem": ["Hydraulics Engineering", "Structural Analysis - II", "Concrete Technology", "Environmental Engineering", "Foundation Engineering"],
+            "5th Sem": ["Design of RC Structures", "Steel Structures", "Highway Engineering", "Water Resources Engineering", "Construction Planning and Management"],
+            "6th Sem": ["Design of Prestressed Concrete", "Irrigation Engineering", "Remote Sensing and GIS", "Advanced Surveying", "Earthquake Engineering"],
+            "7th Sem": ["Professional Elective", "Project Work Phase - I"],
+            "8th Sem": ["Project Work Phase - II", "Seminar"]
+        },
+        "core_skills_taught": ["C", "Python", "AutoCAD", "STAAD Pro", "Revit", "Surveying", "Structural Analysis", "Reinforced Concrete Design", "Steel Structures", "Soil Mechanics", "Foundation Engineering", "Hydraulics", "Environmental Engineering", "Highway Engineering", "GIS", "Construction Management"]
+    },
+
+    "B.Tech IT - NIT Trichy": {
+        "type": "degree",
+        "university": "NIT Trichy",
+        "semesters": 8,
+        "skills": {
+            "Core": ["Programming in C", "Data Structures", "Object Oriented Programming", "Computer Organization", "Operating Systems", "Database Management", "Computer Networks", "Web Technologies", "Software Engineering", "Information Security", "Cloud Computing", "Data Analytics", "Mobile App Development"],
+            "Math": ["Discrete Mathematics", "Probability and Statistics", "Linear Algebra"],
+            "Projects": ["Mini Project", "Major Project", "Internship"]
+        },
+        "core_skills_taught": ["C", "C++", "Java", "Python", "SQL", "HTML", "CSS", "JavaScript", "Data Structures", "OOP", "Operating Systems", "Computer Networks", "DBMS", "Web Technologies", "Software Engineering", "Information Security", "Cloud Computing", "Data Analytics", "Mobile App Development"]
+    },
+
+    "B.Tech CSE (AI & ML) - SRM University": {
+        "type": "degree",
+        "university": "SRM University, Chennai",
+        "semesters": 8,
+        "skills": {
+            "Core CS": ["Programming in C", "Data Structures", "Object Oriented Programming", "Computer Organization", "Operating Systems", "Database Management", "Computer Networks", "Software Engineering"],
+            "AI & ML": ["Artificial Intelligence", "Machine Learning", "Deep Learning", "Natural Language Processing", "Computer Vision", "Reinforcement Learning", "Statistical Learning", "MLOps"],
+            "Math": ["Linear Algebra", "Probability and Statistics", "Discrete Mathematics", "Optimization"],
+            "Projects": ["AI Project", "Internship"]
+        },
+        "core_skills_taught": ["Python", "Java", "SQL", "Data Structures", "Algorithms", "Artificial Intelligence", "Machine Learning", "Deep Learning", "NLP", "Computer Vision", "Reinforcement Learning", "MLOps", "TensorFlow", "PyTorch", "Scikit-learn", "Statistics", "Pandas", "NumPy"]
+    },
+
+    "B.Tech CSE (Data Science) - VIT": {
+        "type": "degree",
+        "university": "Vellore Institute of Technology (VIT)",
+        "semesters": 8,
+        "skills": {
+            "Core CS": ["Programming in C", "Data Structures", "Object Oriented Programming", "Computer Organization", "Operating Systems", "Database Management", "Computer Networks", "Web Technologies"],
+            "Data Science": ["Probability and Statistics", "Data Mining", "Machine Learning", "Big Data Analytics", "Business Intelligence", "Data Visualization", "Deep Learning", "Text Mining"],
+            "Math": ["Linear Algebra", "Discrete Mathematics", "Optimization"],
+            "Projects": ["Data Science Project", "Internship"]
+        },
+        "core_skills_taught": ["Python", "R", "SQL", "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Machine Learning", "Data Mining", "Big Data Analytics", "Business Intelligence", "Tableau", "Power BI", "Statistics", "Data Visualization", "Hadoop", "Spark"]
+    },
+
+    "B.E. E&TC - Pune University": {
+        "type": "degree",
+        "university": "Savitribai Phule Pune University",
+        "semesters": 8,
+        "skills": {
+            "Core": ["Engineering Mathematics", "Basic Electronics", "Circuit Theory", "Electronic Devices and Circuits", "Digital Electronics", "Signals and Systems", "Communication Systems", "Digital Signal Processing", "Microprocessors", "Control Systems", "VLSI", "Embedded Systems", "Wireless Communication", "IoT"],
+            "Math": ["Engineering Mathematics", "Probability and Statistics", "Linear Algebra"],
+            "Lab": ["Electronics Lab", "Communication Lab", "Microprocessor Lab", "Embedded Systems Lab"]
+        },
+        "core_skills_taught": ["C", "C++", "Python", "MATLAB", "Digital Electronics", "Signals and Systems", "Communication Systems", "Digital Signal Processing", "VLSI", "Embedded Systems", "Wireless Communication", "IoT", "Microprocessors", "Control Systems", "Circuit Theory"]
+    },
+
+    "Diploma in Mechanical - MSBTE": {
+        "type": "diploma",
+        "university": "MSBTE (Maharashtra State Board of Technical Education)",
+        "semesters": 6,
+        "skills": {
+            "Core": ["Engineering Drawing", "Workshop Technology", "Thermodynamics", "Mechanics of Materials", "Manufacturing Processes", "Machine Tools", "Fluid Mechanics", "Hydraulics and Pneumatics", "CAD/CAM", "CNC Machines", "Metrology", "Refrigeration and Air Conditioning"],
+            "Practical": ["Mechanical Workshop", "Machine Shop", "CAD Lab", "Metrology Lab"]
+        },
+        "core_skills_taught": ["AutoCAD", "SolidWorks", "CATIA", "CNC", "Engineering Drawing", "Workshop Technology", "Thermodynamics", "Manufacturing", "Machine Tools", "Hydraulics", "CAD/CAM", "Metrology", "Refrigeration and Air Conditioning", "Fluid Mechanics"]
+    },
+
+    "Diploma in Electrical - MSBTE": {
+        "type": "diploma",
+        "university": "MSBTE (Maharashtra State Board of Technical Education)",
+        "semesters": 6,
+        "skills": {
+            "Core": ["Basic Electrical Engineering", "Electrical Circuits", "Electrical Machines", "Power Systems", "Digital Electronics", "Microprocessors", "Electrical Measurements", "Power Electronics", "Control Systems", "Industrial Wiring", "Renewable Energy"],
+            "Practical": ["Electrical Lab", "Electrical Machines Lab", "Power Electronics Lab"]
+        },
+        "core_skills_taught": ["C", "Electrical Machines", "Power Systems", "Power Electronics", "Control Systems", "Electrical Circuits", "Measurements", "Digital Electronics", "Microprocessors", "Industrial Wiring", "Renewable Energy"]
     }
 }
 

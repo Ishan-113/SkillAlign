@@ -68,3 +68,53 @@ async def get_analysis_collection():
     if not db:
         await connect_db()
     return db.analysis_sessions
+
+
+def get_ingestion_collections():
+    """Return a plain (blocking) database handle for the ingestion scripts.
+
+    The scheduled ingestion runs outside the web request/async loop, so it uses
+    pymongo's synchronous driver directly through this helper.
+    """
+    from pymongo import MongoClient
+
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    database = client[DB_NAME]
+    # Attach the client on the database object so the caller can close it.
+    setattr(database, "_sih_client", client)
+    return database
+
+
+def build_indexes(database):
+    """Create the indexes required by the ingestion system.
+
+    A unique compound index on (source, externalId) prevents duplicate jobs,
+    per the data-quality requirements.
+    """
+    jobs = database["jobs"]
+    jobs.create_index([("source", 1), ("externalId", 1)], unique=True, sparse=True)
+    jobs.create_index("location")
+    jobs.create_index("postedAt")
+    jobs.create_index("status")
+    jobs.create_index("lastSeenAt")
+
+    database["skills"].create_index("canonicalSkill", unique=True)
+    database["skills"].create_index("aliases")
+
+    database["update_logs"].create_index([("source", 1), ("startedAt", -1)])
+    database["update_logs"].create_index("dataType")
+
+    database["universities"].create_index("aisheCode", unique=True, sparse=True)
+    database["universities"].create_index("name")
+
+    database["curriculum_sources"].create_index(
+        [("universityId", 1), ("program", 1)], unique=True
+    )
+
+    database["curricular"].create_index(
+        [("universityId", 1), ("program", 1), ("academicYear", 1)]
+    )
+
+    # The collection the application's skill-gap analysis actually reads.
+    database["curricula"].create_index("name", unique=True)
+    database["curricula"].create_index("type")
