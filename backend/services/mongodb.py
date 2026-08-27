@@ -15,7 +15,7 @@ db = None
 async def connect_db():
     global client, db
     try:
-        client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=20000, connectTimeoutMS=15000)
         db = client[DB_NAME]
         await db.command("ping")
         print(f"Connected to MongoDB: {DB_NAME}")
@@ -78,7 +78,7 @@ def get_ingestion_collections():
     """
     from pymongo import MongoClient
 
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=20000, connectTimeoutMS=15000)
     database = client[DB_NAME]
     # Attach the client on the database object so the caller can close it.
     setattr(database, "_sih_client", client)
