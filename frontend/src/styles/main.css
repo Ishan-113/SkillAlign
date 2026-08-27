@@ -560,6 +560,14 @@ body {
     color: var(--text);
 }
 
+.dash-summary {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
 /* JOB TABLE */
 .job-table {
     width: 100%;

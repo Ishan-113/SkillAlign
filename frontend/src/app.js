@@ -40,6 +40,9 @@ function navigateTo(page) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (page === 'analytics') loadAnalytics();
     if (page === 'dashboard') loadDashboard();
+    if (page === 'industry') loadIndustry();
+    if (page === 'recommendations') loadRecommendations();
+    if (page === 'careerguidance') loadCareerGuidance();
     if (page === 'skillgap') initSkillGap();
 }
 
@@ -50,6 +53,21 @@ function toggleNav() {
 async function fetchAPI(endpoint) {
     try {
         const res = await fetch(`${API_BASE}${endpoint}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (err) {
+        console.error(`API Error (${endpoint}):`, err);
+        return null;
+    }
+}
+
+async function fetchPOST(endpoint, body) {
+    try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (err) {
@@ -155,109 +173,257 @@ function renderInsights(data) {
         </div>`).join('')}</div>`;
 }
 
+// ==================== SHARED FILTER HELPERS ====================
+let districtOptions = [];
+let sectorOptions = [];
+
+async function ensureFilters() {
+    if (districtOptions.length || sectorOptions.length) return;
+    const [d, s] = await Promise.all([fetchAPI('/districts'), fetchAPI('/sectors')]);
+    districtOptions = (d && d.districts) ? d.districts : [];
+    sectorOptions = (s && s.sectors) ? s.sectors : [];
+    return { districtOptions, sectorOptions };
+}
+
+function fillDistrictSelect(el) {
+    if (!el) return;
+    el.innerHTML = '<option value="">All Districts</option>' +
+        districtOptions.map(x => `<option value="${x.district}">${x.district}</option>`).join('');
+}
+
+function fillSectorSelect(el, { includeAll = true } = {}) {
+    if (!el) return;
+    const all = includeAll ? '<option value="">All Sectors</option>' : '<option value="">Any Sector</option>';
+    el.innerHTML = all + sectorOptions.map(x => `<option value="${x.sector}">${x.sector}</option>`).join('');
+}
+
 // ==================== DASHBOARD ====================
 async function loadDashboard() {
-    const [skillsData, salaryData, locationsData] = await Promise.all([
-        fetchAPI('/skills/top?limit=20'),
-        fetchAPI('/experience/salary'),
-        fetchAPI('/locations'),
-    ]);
-    if (skillsData) renderHeatmap(skillsData.top_skills);
-    if (salaryData) renderSalaryChart(salaryData);
-    if (locationsData) populateLocationFilter(locationsData);
-    await loadJobTable();
+    await ensureFilters();
+    const dist = document.getElementById('filterDistrict');
+    const sec = document.getElementById('filterSector');
+    if (dist && !dist.value) fillDistrictSelect(dist);
+    if (sec && !sec.value) fillSectorSelect(sec);
+    await loadDashboardData();
 }
 
-function populateLocationFilter(data) {
-    const select = document.getElementById('filterLocation');
-    select.innerHTML = '<option value="all">All Locations</option>' +
-        data.distribution.map(l => `<option value="${l.location}">${l.location}</option>`).join('');
+async function loadDashboardData() {
+    const district = document.getElementById('filterDistrict').value;
+    const sector = document.getElementById('filterSector').value;
+    const period = document.getElementById('filterPeriod').value;
+    const q = new URLSearchParams();
+    if (district) q.set('district', district);
+    if (sector) q.set('sector', sector);
+    if (period && period !== 'all') q.set('time_period', period);
+
+    const data = await fetchAPI(`/dashboard?${q.toString()}`);
+    if (!data) return;
+    renderDashSummary(data.summary);
+    renderDashSkills(data.top_skills);
+    renderDashCompanies(data.companies);
+    renderDashExperience(data.experience_distribution);
+    renderDashTrend(data.job_trend);
 }
 
-function renderHeatmap(skills) {
-    const container = document.getElementById('dashSkillsHeatmap');
+async function applyDashboardFilters() {
+    await loadDashboardData();
+}
+
+function renderDashSummary(s) {
+    const el = document.getElementById('dashSummary');
+    const salaryText = (s.average_salary || 0) > 0 ? `₹${(s.average_salary / 100000).toFixed(1)} LPA avg` : 'Salary N/A (not disclosed)';
+    el.innerHTML = `<div class="insights-grid">
+        <div class="insight-card"><h4>Active Job Posts</h4><div class="value">${s.total_jobs.toLocaleString()}</div><div class="detail">from live intake</div></div>
+        <div class="insight-card"><h4>Unique Skills</h4><div class="value">${s.unique_skills}</div><div class="detail">across current openings</div></div>
+        <div class="insight-card"><h4>Companies Hiring</h4><div class="value">${s.top_companies_count}</div><div class="detail">unique employers</div></div>
+        <div class="insight-card"><h4>Market Signals</h4><div class="value" style="font-size:1rem">${salaryText}</div><div class="detail">${s.sectors_present.length} sectors present</div></div>
+    </div>`;
+}
+
+function renderDashSkills(skills) {
+    const container = document.getElementById('dashTopSkills');
     if (!skills || !skills.length) { container.innerHTML = '<p>No data</p>'; return; }
     const maxCount = skills[0].count;
-    container.innerHTML = `<div class="heatmap">${skills.map(s => {
-        const intensity = s.count / maxCount;
-        const r = Math.round(37 + (16 - 37) * intensity);
-        const g = Math.round(99 + (185 - 99) * intensity);
-        const b = Math.round(235 + (129 - 235) * intensity);
-        return `<div class="heat-cell" style="background:rgba(${r},${g},${b},0.25);color:rgb(${r},${g},${b})">${s.skill} (${s.count})</div>`;
-    }).join('')}</div>`;
+    container.innerHTML = `<div class="bar-chart">${skills.map(s => `
+        <div class="bar-row">
+            <span class="bar-label" style="min-width:150px">${s.skill}</span>
+            <div class="bar-track"><div class="bar-fill skill-bar" style="width:${(s.count / maxCount) * 100}%">${s.count} (${s.percentage}%)</div></div>
+        </div>`).join('')}</div>`;
 }
 
-function renderSalaryChart(data) {
-    const container = document.getElementById('dashSalaryExp');
-    if (!data.salary_by_experience) { container.innerHTML = '<p>No data</p>'; return; }
-    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px;">${data.salary_by_experience.map(s => `
-        <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:14px;">
-            <div style="font-weight:600;color:#a78bfa;margin-bottom:6px;">${s.experience_years} Years Experience</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                ${s.salary_ranges.map(r => `<span class="skill-tag">${r}</span>`).join('')}
+function renderDashCompanies(companies) {
+    const container = document.getElementById('dashCompanies');
+    if (!companies || !companies.length) { container.innerHTML = '<p>No data</p>'; return; }
+    container.innerHTML = `<div class="heatmap">${companies.map(c =>
+        `<div class="heat-cell" style="background:rgba(139,92,246,0.2);color:#a78bfa">${c.company} · ${c.count}</div>`).join('')}</div>`;
+}
+
+function renderDashExperience(dist) {
+    const container = document.getElementById('dashExperience');
+    if (!dist || !dist.length) { container.innerHTML = '<p>No data</p>'; return; }
+    const total = dist.reduce((a, b) => a + b.count, 0) || 1;
+    const colors = ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'];
+    let cumulative = 0;
+    const segs = dist.map((d, i) => {
+        const pct = (d.count / total) * 100;
+        const off = cumulative; cumulative += pct;
+        return `<circle cx="80" cy="80" r="58" fill="none" stroke="${colors[i]}" stroke-width="20"
+            stroke-dasharray="${pct * 3.64} ${364 - pct * 3.64}" stroke-dashoffset="${-off * 3.64}"/>`;
+    });
+    container.innerHTML = `<div class="donut-container" style="justify-content:center">
+        <svg viewBox="0 0 160 160" width="170" height="170">
+            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="20"/>
+            ${segs.join('')}
+            <text x="80" y="85" text-anchor="middle" fill="white" font-size="18" font-weight="700">${total}</text>
+        </svg>
+        <div class="donut-legend">${dist.map((d, i) => `
+            <div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div><span>${d.range}: ${d.count}</span></div>`).join('')}
+        </div></div>`;
+}
+
+function renderDashTrend(trend) {
+    const container = document.getElementById('dashTrend');
+    if (!trend || !trend.length) { container.innerHTML = '<p>No data</p>'; return; }
+    const maxCount = Math.max(...trend.map(t => t.count));
+    container.innerHTML = `<div class="bar-chart">${trend.map(t => `
+        <div class="bar-row">
+            <span class="bar-label" style="min-width:90px">${t.period}</span>
+            <div class="bar-track"><div class="bar-fill loc-bar" style="width:${(t.count / maxCount) * 100}%">${t.count}</div></div>
+        </div>`).join('')}</div>`;
+}
+
+// ==================== INDUSTRY DEMAND ====================
+async function loadIndustry() {
+    await ensureFilters();
+    const sec = document.getElementById('indSector');
+    const dist = document.getElementById('indDistrict');
+    if (!sec.value) fillSectorSelect(sec);
+    if (!dist.value) fillDistrictSelect(dist);
+
+    const q = new URLSearchParams();
+    if (sec.value) q.set('sector', sec.value);
+    if (dist.value) q.set('district', dist.value);
+    const data = await fetchAPI(`/industry-demand?${q.toString()}`);
+    renderIndustry(data);
+}
+
+function renderIndustry(data) {
+    const container = document.getElementById('indBars');
+    if (!data || !data.industry_demand || !data.industry_demand.length) {
+        container.innerHTML = '<p>No data for this selection</p>';
+        return;
+    }
+    const jobs = data.total_jobs;
+    const maxCount = data.industry_demand[0].count;
+    container.innerHTML = `<div style="margin-bottom:14px;color:#94a3b8">Based on <strong style="color:#a78bfa">${jobs}</strong> active postings</div>
+        <div class="bar-chart">${data.industry_demand.map(s => {
+        const salary = s.avg_salary > 0 ? ` · ₹${(s.avg_salary / 100000).toFixed(1)}L` : '';
+        return `<div class="bar-row">
+            <span class="bar-label" style="min-width:150px">${s.skill}${salary}</span>
+            <div class="bar-track"><div class="bar-fill skill-bar" style="width:${(s.count / maxCount) * 100}%">${s.count} (${s.percentage}%)</div></div>
+        </div>`;}).join('')}</div>`;
+}
+
+// ==================== RECOMMENDATIONS ====================
+async function loadRecommendations() {
+    await ensureFilters();
+    const sec = document.getElementById('recSector');
+    const dist = document.getElementById('recDistrict');
+    if (!sec.value) fillSectorSelect(sec);
+    if (!dist.value) fillDistrictSelect(dist);
+
+    const q = new URLSearchParams();
+    if (sec.value) q.set('sector', sec.value);
+    if (dist.value) q.set('district', dist.value);
+    const data = await fetchAPI(`/recommendations?${q.toString()}`);
+    renderRecommendations(data);
+}
+
+function renderRecommendations(data) {
+    const container = document.getElementById('recResults');
+    if (!data || !data.recommendations || !data.recommendations.length) {
+        container.innerHTML = '<p>No recommendations for this selection</p>';
+        return;
+    }
+    container.innerHTML = `<div class="insights-grid">${data.recommendations.map(r => `
+        <div class="chart-card" style="margin:0">
+            <h3 class="chart-title" style="color:#a78bfa">${r.skill}
+                <span class="skill-tag" style="margin-left:8px">${r.demand_count} openings</span></h3>
+            <div class="detail" style="margin-top:8px">Level: <strong>${r.level}</strong></div>
+            <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+                ${r.suggested_topics.map(t => `<span class="skill-tag">${t}</span>`).join('')}
             </div>
         </div>`).join('')}</div>`;
 }
 
-async function loadJobTable() {
-    const container = document.getElementById('dashJobTable');
-    container.innerHTML = '<div class="loading-spinner"></div>';
-
-    const data = await fetchAPI('/data/jobs?limit=200');
-    if (!data || !data.jobs) {
-        container.innerHTML = '<p>Failed to load jobs</p>';
-        return;
-    }
-
-    cachedJobs = data.jobs.map(job => ({
-        id: job.externalId || job.title,
-        exp: job.experience_years ?? 0,
-        salary: job.salary_range || '-',
-        location: job.location || '-',
-        company: job.company || '-',
-        title: job.title || '-',
-        skills: job.skills || '',
-    }));
-
-    container.innerHTML = `
-        <table class="job-table">
-            <thead><tr><th>Title</th><th>Experience</th><th>Company</th><th>Location</th><th>Salary</th></tr></thead>
-            <tbody id="jobTableBody"></tbody>
-        </table>`;
-
-    renderJobRows();
+// ==================== CAREER GUIDANCE ====================
+async function loadCareerGuidance() {
+    await ensureFilters();
+    const dist = document.getElementById('cgDistrict');
+    const sec = document.getElementById('cgSector');
+    if (dist && !dist.value) fillDistrictSelect(dist);
+    if (sec && !sec.value) fillSectorSelect(sec, { includeAll: false });
+    document.getElementById('cgResults').style.display = 'none';
 }
 
-function renderJobRows() {
-    const tbody = document.getElementById('jobTableBody');
-    if (!tbody) return;
-    const locFilter = document.getElementById('filterLocation').value;
-    const expFilter = document.getElementById('filterExperience').value;
-    const skillFilter = document.getElementById('filterSkill').value.toLowerCase();
-
-    let filtered = cachedJobs;
-    if (locFilter !== 'all') filtered = filtered.filter(j => j.location === locFilter);
-    if (expFilter !== 'all') {
-        if (expFilter === '0-2') filtered = filtered.filter(j => j.exp <= 2);
-        else if (expFilter === '3-5') filtered = filtered.filter(j => j.exp >= 3 && j.exp <= 5);
-        else if (expFilter === '6+') filtered = filtered.filter(j => j.exp >= 6);
-    }
-    if (skillFilter) {
-        filtered = filtered.filter(j => (j.skills || '').toLowerCase().includes(skillFilter));
-    }
-
-    tbody.innerHTML = filtered.slice(0, 50).map(j => `
-        <tr>
-            <td>${j.title}</td>
-            <td>${j.exp} yrs</td>
-            <td>${j.company || '-'}</td>
-            <td>${j.location || '-'}</td>
-            <td><span class="skill-tag">${j.salary || '-'}</span></td>
-        </tr>`).join('');
+async function runCareerGuidance() {
+    const body = {
+        location: document.getElementById('cgDistrict').value,
+        sector: document.getElementById('cgSector').value,
+        education: document.getElementById('cgEducation').value,
+        preferred_role: document.getElementById('cgRole').value,
+        current_skills: document.getElementById('cgSkills').value.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    const data = await fetchPOST('/career-guidance', body);
+    if (!data) return;
+    const results = document.getElementById('cgResults');
+    results.style.display = 'block';
+    renderCGSummary(data.profile);
+    renderCGDemand(data.analysis.in_demand_skills);
+    renderCGMissing(data.analysis.skills_to_learn);
+    renderCGRoles(data.analysis.top_roles, data.analysis.top_companies);
+    renderCGReco(data.recommendation);
+    results.scrollIntoView({ behavior: 'smooth' });
 }
 
-function applyFilters() {
-    renderJobRows();
+function renderCGSummary(profile) {
+    document.getElementById('cgSummary').innerHTML = `<div class="insights-grid">
+        <div class="insight-card"><h4>Location</h4><div class="value" style="font-size:1.1rem">${profile.location}</div></div>
+        <div class="insight-card"><h4>Education</h4><div class="value" style="font-size:1.1rem">${profile.education}</div></div>
+        <div class="insight-card"><h4>Sector</h4><div class="value" style="font-size:1.1rem">${profile.preferred_sector}</div></div>
+        <div class="insight-card"><h4>Target Role</h4><div class="value" style="font-size:1.1rem">${profile.preferred_role}</div></div>
+    </div>`;
+}
+
+function renderCGDemand(skills) {
+    const el = document.getElementById('cgDemand');
+    if (!skills || !skills.length) { el.innerHTML = '<p>No data</p>'; return; }
+    el.innerHTML = `<div class="heatmap">${skills.map(s =>
+        `<div class="heat-cell" style="background:rgba(139,92,246,0.2);color:#a78bfa">${s}</div>`).join('')}</div>`;
+}
+
+function renderCGMissing(skills) {
+    const el = document.getElementById('cgMissing');
+    if (!skills || !skills.length) { el.innerHTML = '<p>You\'re already aligned with demand!</p>'; return; }
+    el.innerHTML = `<div class="heatmap">${skills.map(s =>
+        `<div class="heat-cell" style="background:rgba(239,68,68,0.2);color:#ef4444">${s}</div>`).join('')}</div>`;
+}
+
+function renderCGRoles(topRoles, topCompanies) {
+    const container = document.getElementById('cgRoles');
+    const roles = (topRoles || []).map(r => `<span class="skill-tag">${r.role} · ${r.count}</span>`).join('');
+    const comps = (topCompanies || []).map(c => `<span class="skill-tag">${c.company} · ${c.count}</span>`).join('');
+    container.innerHTML = `<div class="insights-grid">
+        <div class="insight-card"><h4>Top Roles</h4><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${roles || '-'}</div></div>
+        <div class="insight-card"><h4>Hiring Companies</h4><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${comps || '-'}</div></div>
+    </div>`;
+}
+
+function renderCGReco(text) {
+    document.getElementById('cgReco').innerHTML = `<div class="insight-card">
+        <h4>Your Recommended Career Path</h4>
+        <div class="detail" style="margin-top:10px;line-height:1.7;color:#e2e8f0">${text}</div>
+    </div>`;
 }
 
 // ==================== SKILL GAP ====================

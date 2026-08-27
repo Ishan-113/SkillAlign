@@ -14,6 +14,7 @@ from routes.insights import router as insights_router
 from routes.auth import router as auth_router
 from routes.skillgap import router as skillgap_router
 from routes.data import router as data_router
+from routes.marketintel import router as marketintel_router
 from services.database import init_db
 from services.mongodb import connect_db, close_db
 
@@ -54,6 +55,7 @@ app.include_router(locations_router, prefix="/api", tags=["Locations"])
 app.include_router(insights_router, prefix="/api", tags=["Insights"])
 app.include_router(skillgap_router, prefix="/api", tags=["Skill Gap"])
 app.include_router(data_router, prefix="/api", tags=["Data"])
+app.include_router(marketintel_router, prefix="/api", tags=["Market Intelligence"])
 
 
 @app.get("/api/health")

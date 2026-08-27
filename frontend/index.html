@@ -19,7 +19,10 @@
                 <a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home')">Home</a>
                 <a href="#" class="nav-link" data-page="analytics" onclick="navigateTo('analytics')">Analytics</a>
                 <a href="#" class="nav-link" data-page="dashboard" onclick="navigateTo('dashboard')">Dashboard</a>
+                <a href="#" class="nav-link" data-page="industry" onclick="navigateTo('industry')">Industry Demand</a>
                 <a href="#" class="nav-link" data-page="skillgap" onclick="navigateTo('skillgap')">Skill Gap</a>
+                <a href="#" class="nav-link" data-page="recommendations" onclick="navigateTo('recommendations')">Recommendations</a>
+                <a href="#" class="nav-link" data-page="careerguidance" onclick="navigateTo('careerguidance')">Career Guidance</a>
                 <a href="#" class="nav-link" data-page="about" onclick="navigateTo('about')">About</a>
             </div>
             <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
@@ -146,43 +149,178 @@
             <div class="page-header">
                 <div class="container">
                     <h1 class="page-title">Interactive Dashboard</h1>
-                    <p class="page-subtitle">Explore and filter job market data</p>
+                    <p class="page-subtitle">Explore live job-market data filtered by district and sector</p>
                 </div>
             </div>
             <div class="container">
                 <div class="dashboard-controls">
                     <div class="filter-group">
-                        <label>Location</label>
-                        <select id="filterLocation" onchange="applyFilters()">
-                            <option value="all">All Locations</option>
+                        <label>District</label>
+                        <select id="filterDistrict" onchange="applyDashboardFilters()">
+                            <option value="">All India</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Experience</label>
-                        <select id="filterExperience" onchange="applyFilters()">
-                            <option value="all">All Levels</option>
-                            <option value="0-2">Fresher (0-2 yrs)</option>
-                            <option value="3-5">Mid-level (3-5 yrs)</option>
-                            <option value="6+">Senior (6+ yrs)</option>
+                        <label>Sector</label>
+                        <select id="filterSector" onchange="applyDashboardFilters()">
+                            <option value="">All Sectors</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Search Skills</label>
-                        <input type="text" id="filterSkill" placeholder="e.g. Python" oninput="applyFilters()">
+                        <label>Time Period</label>
+                        <select id="filterPeriod" onchange="applyDashboardFilters()">
+                            <option value="all">All Time</option>
+                            <option value="30d">Last 30 days</option>
+                            <option value="7d">Last 7 days</option>
+                        </select>
                     </div>
                 </div>
+                <div class="dash-summary" id="dashSummary">
+                    <div class="loading-spinner"></div>
+                </div>
                 <div class="dashboard-grid">
-                    <div class="dash-card">
-                        <h4>Skills Heatmap</h4>
-                        <div id="dashSkillsHeatmap"><div class="loading-spinner"></div></div>
+                    <div class="dash-card full-width">
+                        <h4>Top Skills in Demand</h4>
+                        <div id="dashTopSkills"><div class="loading-spinner"></div></div>
                     </div>
                     <div class="dash-card">
-                        <h4>Salary vs Experience</h4>
-                        <div id="dashSalaryExp"><div class="loading-spinner"></div></div>
+                        <h4>Top Companies Hiring</h4>
+                        <div id="dashCompanies"><div class="loading-spinner"></div></div>
+                    </div>
+                    <div class="dash-card">
+                        <h4>Experience Required</h4>
+                        <div id="dashExperience"><div class="loading-spinner"></div></div>
                     </div>
                     <div class="dash-card full-width">
-                        <h4>All Job Postings</h4>
-                        <div id="dashJobTable"><div class="loading-spinner"></div></div>
+                        <h4>Job Posting Trend</h4>
+                        <div id="dashTrend"><div class="loading-spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INDUSTRY DEMAND PAGE -->
+        <section id="page-industry" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Industry Demand</h1>
+                    <p class="page-subtitle">The most in-demand skills across sectors, from live job postings</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="dashboard-controls">
+                    <div class="filter-group">
+                        <label>Sector</label>
+                        <select id="indSector" onchange="loadIndustry()">
+                            <option value="">All Sectors</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>District</label>
+                        <select id="indDistrict" onchange="loadIndustry()">
+                            <option value="">All Districts</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-card full-width">
+                    <h3 class="chart-title">In-Demand Skills by Openings</h3>
+                    <div id="indBars"><div class="loading-spinner"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RECOMMENDATIONS PAGE -->
+        <section id="page-recommendations" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Skill & Course Recommendations</h1>
+                    <p class="page-subtitle">What to learn next, prioritized by real market demand</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="dashboard-controls">
+                    <div class="filter-group">
+                        <label>Sector</label>
+                        <select id="recSector" onchange="loadRecommendations()">
+                            <option value="">All Sectors</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>District</label>
+                        <select id="recDistrict" onchange="loadRecommendations()">
+                            <option value="">All Districts</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="recResults">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CAREER GUIDANCE PAGE -->
+        <section id="page-careerguidance" class="page">
+            <div class="page-header">
+                <div class="container">
+                    <h1 class="page-title">Career Guidance</h1>
+                    <p class="page-subtitle">Get a personalized career path based on your profile and live market demand</p>
+                </div>
+            </div>
+            <div class="container">
+                <div class="curriculum-selector">
+                    <div class="selector-card">
+                        <h3>Tell Us About Yourself</h3>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label>Preferred District / Location</label>
+                            <select id="cgDistrict" style="width:100%">
+                                <option value="">Anywhere in India</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label>Preferred Sector</label>
+                            <select id="cgSector" style="width:100%">
+                                <option value="">Any Sector</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label>Education</label>
+                            <input type="text" id="cgEducation" placeholder="e.g. B.Tech CSE, BCA, Diploma, 12th" style="width:100%">
+                        </div>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label>Preferred Role</label>
+                            <input type="text" id="cgRole" placeholder="e.g. Data Analyst, Software Engineer" style="width:100%">
+                        </div>
+                        <div class="filter-group" style="width:100%;margin-top:12px;">
+                            <label>Your Current Skills (comma separated)</label>
+                            <input type="text" id="cgSkills" placeholder="e.g. python, sql, html" style="width:100%">
+                        </div>
+                        <button class="btn btn-primary" style="margin-top:16px;" onclick="runCareerGuidance()">
+                            Get My Career Guidance
+                        </button>
+                        <button class="btn btn-secondary" style="margin-top:16px;margin-left:8px;" onclick="loadCareerGuidance()">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                <div id="cgResults" style="display:none;margin-top:24px;">
+                    <div class="gap-summary" id="cgSummary"></div>
+                    <div class="gap-grid">
+                        <div class="chart-card">
+                            <h3 class="chart-title">In-Demand Skills</h3>
+                            <div id="cgDemand"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title">Skills To Learn Next</h3>
+                            <div id="cgMissing"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3 class="chart-title">Top Roles & Hiring Companies</h3>
+                            <div id="cgRoles"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3 class="chart-title">Suggested Career Path</h3>
+                            <div id="cgReco"><div class="loading-spinner"></div></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -268,7 +406,9 @@
                         <div class="tech-stack">
                             <span class="tech-tag">Python</span>
                             <span class="tech-tag">FastAPI</span>
-                            <span class="tech-tag">SQLite</span>
+                            <span class="tech-tag">MongoDB Atlas</span>
+                            <span class="tech-tag">Adzuna API</span>
+                            <span class="tech-tag">GitHub Actions</span>
                             <span class="tech-tag">HTML5</span>
                             <span class="tech-tag">CSS3</span>
                             <span class="tech-tag">JavaScript</span>
