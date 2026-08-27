@@ -3,397 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillAlign - PS 26134 | Smart India Hackathon 2026</title>
+    <title>SkillAlign AI - PS 26134 | Smart India Hackathon 2026</title>
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo" onclick="navigateTo('home')">
-                <span class="logo-icon">&#9672;</span>
-                SkillAlign
-            </a>
-            <div class="nav-links" id="navLinks">
-                <a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home')">Home</a>
-                <a href="#" class="nav-link" data-page="dashboard" onclick="navigateTo('dashboard')">Dashboard</a>
-                <a href="#" class="nav-link" data-page="industry" onclick="navigateTo('industry')">Industry Demand</a>
-                <a href="#" class="nav-link" data-page="skillgap" onclick="navigateTo('skillgap')">Skill Gap</a>
-                <a href="#" class="nav-link" data-page="recommendations" onclick="navigateTo('recommendations')">Recommendations</a>
-                <a href="#" class="nav-link" data-page="careerguidance" onclick="navigateTo('careerguidance')">Career Guidance</a>
-                <a href="#" class="nav-link" data-page="about" onclick="navigateTo('about')">About</a>
-            </div>
-            <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-    </nav>
-
-    <main id="mainContent">
-        <!-- HOME PAGE -->
-        <section id="page-home" class="page active">
-            <div class="hero">
-                <div class="hero-bg"></div>
-                <div class="hero-content">
-                    <div class="hero-badge">PS 26134 - Smart India Hackathon 2026</div>
-                    <h1 class="hero-title">
-                        Bridging the <span class="gradient-text">Skill Gap</span><br>
-                        Between Education & Industry
-                    </h1>
-                    <p class="hero-subtitle">
-                        Analyzing job market trends to align skill development with industry demands.
-                        Powered by Government of Maharashtra.
-                    </p>
-                    <div class="hero-actions">
-                        <button class="btn btn-primary" onclick="navigateTo('dashboard')">
-                            Explore Market Dashboard
-                            <span class="btn-arrow">&rarr;</span>
-                        </button>
-                        <button class="btn btn-secondary" onclick="navigateTo('careerguidance')">
-                            Get Career Guidance
-                        </button>
+    <div class="app-shell">
+        <header class="site-header">
+            <div class="container header-inner">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/></svg>
                     </div>
-                    <div class="hero-stats" id="heroStats">
-                        <div class="stat-item">
-                            <span class="stat-number" id="statJobs">--</span>
-                            <span class="stat-label">Jobs Analyzed</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number" id="statSkills">--</span>
-                            <span class="stat-label">Skills Tracked</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number" id="statLocations">--</span>
-                            <span class="stat-label">Cities Covered</span>
-                        </div>
-                    </div>
-                    <div class="freshness-bar" id="freshnessBar">
-                        <span class="freshness-item" id="freshnessJobs">Loading data status...</span>
-                        <span class="freshness-sep">&middot;</span>
-                        <span class="freshness-item" id="freshnessCurr">Loading...</span>
+                    <div>
+                        <div class="brand-name">SkillAlign AI <span class="badge">Prototype</span></div>
+                        <div class="brand-tag">From Industry Demand to Job-Ready Skills</div>
                     </div>
                 </div>
+                <nav class="nav-links" id="navLinks">
+                    <a href="#" class="nav-link" data-page="dashboard" onclick="navigateTo('dashboard')">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="industry" onclick="navigateTo('industry')">Industry Demand</a>
+                    <a href="#" class="nav-link" data-page="skillgap" onclick="navigateTo('skillgap')">Skill Gaps</a>
+                    <a href="#" class="nav-link" data-page="curriculum" onclick="navigateTo('curriculum')">Curriculum</a>
+                    <a href="#" class="nav-link" data-page="recommendations" onclick="navigateTo('recommendations')">Recommendations</a>
+                    <a href="#" class="nav-link" data-page="careerguidance" onclick="navigateTo('careerguidance')">Career Guidance</a>
+                    <a href="#" class="nav-link" data-page="district" onclick="navigateTo('district')">District Intel</a>
+                    <a href="#" class="nav-link" data-page="about" onclick="navigateTo('about')">About</a>
+                </nav>
+                <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
+        </header>
 
-            <div class="section" id="homeFeatures">
+        <main id="mainContent">
+
+            <!-- ===================== DASHBOARD ===================== -->
+            <section id="page-dashboard" class="page active">
                 <div class="container">
-                    <h2 class="section-title">Explore Live Market Intelligence</h2>
-                    <div class="features-grid">
-                        <div class="feature-card" onclick="navigateTo('dashboard')">
-                            <div class="feature-icon">&#128200;</div>
-                            <h3>Market Dashboard</h3>
-                            <p>Skills, companies, experience and locations from live job postings, filtered by district & sector</p>
+                    <div class="hero">
+                        <div class="hero-eyebrow">Labour Market Intelligence</div>
+                        <h1 class="hero-title">Know What Industry Needs.<br>Build What Students Need.</h1>
+                        <p class="hero-sub">Understand what industry needs, identify where training falls short, and act before the skill gap widens.</p>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary" onclick="navigateTo('dashboard'); loadDashboardData()">Explore Market</button>
+                            <button class="btn btn-ghost" onclick="runDemo()">Run Intelligence Demo</button>
                         </div>
-                        <div class="feature-card" onclick="navigateTo('industry')">
-                            <div class="feature-icon">&#128269;</div>
-                            <h3>Industry Demand</h3>
-                            <p>See which skills are most in demand right now across every sector</p>
-                        </div>
-                        <div class="feature-card" onclick="navigateTo('recommendations')">
-                            <div class="feature-icon">&#127891;</div>
-                            <h3>Recommendations</h3>
-                            <p>Get prioritized skills and learning topics to match market demand</p>
-                        </div>
-                        <div class="feature-card" onclick="navigateTo('careerguidance')">
-                            <div class="feature-icon">&#127919;</div>
-                            <h3>Career Guidance</h3>
-                            <p>Receive a personalized career path based on your profile and live data</p>
-                        </div>
+                        <div class="snapshot-chips" id="snapshotChips"></div>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- DASHBOARD PAGE -->
-        <section id="page-dashboard" class="page">
-            <div class="page-header">
-                <div class="container">
-                    <h1 class="page-title">Interactive Dashboard</h1>
-                    <p class="page-subtitle">Explore live job-market data filtered by district and sector</p>
-                </div>
-            </div>
-            <div class="container">
-                <div class="dashboard-controls">
-                    <div class="filter-group">
-                        <label>District</label>
-                        <select id="filterDistrict" onchange="applyDashboardFilters()">
-                            <option value="">All India</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Sector</label>
-                        <select id="filterSector" onchange="applyDashboardFilters()">
-                            <option value="">All Sectors</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Time Period</label>
-                        <select id="filterPeriod" onchange="applyDashboardFilters()">
-                            <option value="all">All Time</option>
-                            <option value="30d">Last 30 days</option>
-                            <option value="7d">Last 7 days</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="dash-summary" id="dashSummary">
-                    <div class="loading-spinner"></div>
-                </div>
-                <div class="dashboard-grid">
-                    <div class="dash-card full-width">
-                        <h4>Top Skills in Demand</h4>
-                        <div id="dashTopSkills"><div class="loading-spinner"></div></div>
-                    </div>
-                    <div class="dash-card">
-                        <h4>Top Companies Hiring</h4>
-                        <div id="dashCompanies"><div class="loading-spinner"></div></div>
-                    </div>
-                    <div class="dash-card">
-                        <h4>Experience Required</h4>
-                        <div id="dashExperience"><div class="loading-spinner"></div></div>
-                    </div>
-                    <div class="dash-card full-width">
-                        <h4>Job Posting Trend</h4>
-                        <div id="dashTrend"><div class="loading-spinner"></div></div>
-                    </div>
-                    <div class="dash-card full-width">
-                        <h4>Opportunities by Location</h4>
-                        <div id="dashLocations"><div class="loading-spinner"></div></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- INDUSTRY DEMAND PAGE -->
-        <section id="page-industry" class="page">
-            <div class="page-header">
-                <div class="container">
-                    <h1 class="page-title">Industry Demand</h1>
-                    <p class="page-subtitle">The most in-demand skills across sectors, from live job postings</p>
-                </div>
-            </div>
-            <div class="container">
-                <div class="dashboard-controls">
-                    <div class="filter-group">
-                        <label>Sector</label>
-                        <select id="indSector" onchange="loadIndustry()">
-                            <option value="">All Sectors</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>District</label>
-                        <select id="indDistrict" onchange="loadIndustry()">
-                            <option value="">All Districts</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="chart-card full-width">
-                    <h3 class="chart-title">In-Demand Skills by Openings</h3>
-                    <div id="indBars"><div class="loading-spinner"></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- RECOMMENDATIONS PAGE -->
-        <section id="page-recommendations" class="page">
-            <div class="page-header">
-                <div class="container">
-                    <h1 class="page-title">Skill & Course Recommendations</h1>
-                    <p class="page-subtitle">What to learn next, prioritized by real market demand</p>
-                </div>
-            </div>
-            <div class="container">
-                <div class="dashboard-controls">
-                    <div class="filter-group">
-                        <label>Sector</label>
-                        <select id="recSector" onchange="loadRecommendations()">
-                            <option value="">All Sectors</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>District</label>
-                        <select id="recDistrict" onchange="loadRecommendations()">
-                            <option value="">All Districts</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="recResults">
-                    <div class="loading-spinner"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CAREER GUIDANCE PAGE -->
-        <section id="page-careerguidance" class="page">
-            <div class="page-header">
-                <div class="container">
-                    <h1 class="page-title">Career Guidance</h1>
-                    <p class="page-subtitle">Get a personalized career path based on your profile and live market demand</p>
-                </div>
-            </div>
-            <div class="container">
-                <div class="curriculum-selector">
-                    <div class="selector-card">
-                        <h3>Tell Us About Yourself</h3>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label>Preferred District / Location</label>
-                            <select id="cgDistrict" style="width:100%">
-                                <option value="">Anywhere in India</option>
+                    <div class="dashboard-controls glass">
+                        <div class="filter-group">
+                            <label>District</label>
+                            <select id="filterDistrict" onchange="applyDashboardFilters()">
+                                <option value="">All India</option>
                             </select>
                         </div>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label>Preferred Sector</label>
-                            <select id="cgSector" style="width:100%">
-                                <option value="">Any Sector</option>
+                        <div class="filter-group">
+                            <label>Sector</label>
+                            <select id="filterSector" onchange="applyDashboardFilters()">
+                                <option value="">All Sectors</option>
                             </select>
                         </div>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label>Education</label>
-                            <input type="text" id="cgEducation" placeholder="e.g. B.Tech CSE, BCA, Diploma, 12th" style="width:100%">
+                        <div class="filter-group">
+                            <label>Role</label>
+                            <select id="filterRole" onchange="applyDashboardFilters()">
+                                <option value="">All Roles</option>
+                            </select>
                         </div>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label>Preferred Role</label>
-                            <input type="text" id="cgRole" placeholder="e.g. Data Analyst, Software Engineer" style="width:100%">
-                        </div>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label>Your Current Skills (comma separated)</label>
-                            <input type="text" id="cgSkills" placeholder="e.g. python, sql, html" style="width:100%">
-                        </div>
-                        <button class="btn btn-primary" style="margin-top:16px;" onclick="runCareerGuidance()">
-                            Get My Career Guidance
-                        </button>
-                        <button class="btn btn-secondary" style="margin-top:16px;margin-left:8px;" onclick="loadCareerGuidance()">
-                            Reset
-                        </button>
-                    </div>
-                </div>
-                <div id="cgResults" style="display:none;margin-top:24px;">
-                    <div class="gap-summary" id="cgSummary"></div>
-                    <div class="gap-grid">
-                        <div class="chart-card">
-                            <h3 class="chart-title">In-Demand Skills</h3>
-                            <div id="cgDemand"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card">
-                            <h3 class="chart-title">Skills To Learn Next</h3>
-                            <div id="cgMissing"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card full-width">
-                            <h3 class="chart-title">Top Roles & Hiring Companies</h3>
-                            <div id="cgRoles"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card full-width">
-                            <h3 class="chart-title">Suggested Career Path</h3>
-                            <div id="cgReco"><div class="loading-spinner"></div></div>
+                        <div class="filter-group">
+                            <label>Time Period</label>
+                            <select id="filterPeriod" onchange="applyDashboardFilters()">
+                                <option value="all">All Time</option>
+                                <option value="3m">Last 3 months</option>
+                                <option value="6m">Last 6 months</option>
+                                <option value="12m">Last 12 months</option>
+                                <option value="24m">Last 24 months</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- SKILL GAP PAGE -->
-        <section id="page-skillgap" class="page">
-            <div class="page-header">
-                <div class="container">
-                    <h1 class="page-title">Skill Gap Analyzer</h1>
-                    <p class="page-subtitle">Select your education level to see what industry skills you're missing</p>
+                    <div class="kpi-grid" id="kpiGrid">
+                        <div class="loading-spinner"></div>
+                    </div>
+
+                    <div class="dash-grid">
+                        <div class="card full">
+                            <div class="card-head">
+                                <h3>Top Skills in Demand</h3>
+                                <span class="card-sub">Share of job postings requiring skill · Live intelligence</span>
+                            </div>
+                            <div id="dashTopSkills"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="card full">
+                            <div class="card-head">
+                                <h3>Critical Skill Gaps</h3>
+                                <span class="card-sub">Gap = Demand − Supply · Sorted by urgency</span>
+                            </div>
+                            <div id="dashCriticalGaps"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="card full">
+                            <div class="card-head">
+                                <h3>District × Skill Heatmap</h3>
+                                <span class="card-sub">Gap severity across regions</span>
+                            </div>
+                            <div class="table-wrap"><div id="dashHeatmap"><div class="loading-spinner"></div></div></div>
+                        </div>
+                        <div class="card full">
+                            <div class="card-head">
+                                <h3>AI Training Recommendations</h3>
+                                <span class="card-sub" id="aiRecommendationHeader">Based on all India · All Sectors</span>
+                            </div>
+                            <div id="aiRecommendations"><div class="loading-spinner"></div></div>
+                        </div>
+                        <div class="card full">
+                            <div class="card-head">
+                                <h3>Projected Impact</h3>
+                                <span class="card-sub">Modelled projection after recommendations</span>
+                            </div>
+                            <div id="projectedImpact"><div class="loading-spinner"></div></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="container">
-                <div class="curriculum-selector">
-                    <div class="selector-card">
-                        <h3>Select Your Education</h3>
-                        <p class="selector-desc">Choose your education level, then select your board/university</p>
-                        <div class="filter-group" style="width:100%">
-                            <label>Education Level</label>
-                            <select id="educationLevel" onchange="onLevelChange()">
-                                <option value="">-- Select your education level --</option>
-                            </select>
-                        </div>
-                        <div class="filter-group" style="width:100%;margin-top:12px;">
-                            <label id="subLabel">Board / University</label>
-                            <select id="educationSub" onchange="onSubChange()" disabled>
-                                <option value="">-- First select level above --</option>
-                            </select>
-                        </div>
+            </section>
+
+            <!-- ===================== INDUSTRY DEMAND ===================== -->
+            <section id="page-industry" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Industry Demand</h1>
+                        <p>The most in-demand skills across sectors, from live job postings</p>
+                    </div>
+                    <div class="dashboard-controls glass">
+                        <div class="filter-group"><label>Sector</label><select id="indSector" onchange="loadIndustry()"><option value="">All Sectors</option></select></div>
+                        <div class="filter-group"><label>District</label><select id="indDistrict" onchange="loadIndustry()"><option value="">All Districts</option></select></div>
+                    </div>
+                    <div class="card full">
+                        <div class="card-head"><h3>In-Demand Skills by Openings</h3><span class="card-sub" id="indMeta">Loading...</span></div>
+                        <div id="indBars"><div class="loading-spinner"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SKILL GAPS ===================== -->
+            <section id="page-skillgap" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Skill Gap Analyzer</h1>
+                        <p>Select your education level to see what industry skills you're missing</p>
+                    </div>
+                    <div class="curriculum-selector glass">
+                        <div class="filter-group"><label>Education Level</label><select id="educationLevel" onchange="onLevelChange()"><option value="">-- Select your education level --</option></select></div>
+                        <div class="filter-group"><label id="subLabel">Board / University</label><select id="educationSub" onchange="onSubChange()" disabled><option value="">-- First select level above --</option></select></div>
                         <div id="curriculumInfo" class="curriculum-info" style="display:none;"></div>
                     </div>
-                </div>
-
-                <div id="gapResults" style="display:none;">
-                    <div class="gap-summary" id="gapSummary"></div>
-                    <div class="gap-grid">
-                        <div class="chart-card">
-                            <h3 class="chart-title">Skills You Have (from your curriculum)</h3>
-                            <div id="gapHaveSkills"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card">
-                            <h3 class="chart-title">Skills You Need to Learn (GAP)</h3>
-                            <div id="gapNeedSkills"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card full-width">
-                            <h3 class="chart-title">Industry Demand vs Your Education</h3>
-                            <div id="gapComparison"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card full-width">
-                            <h3 class="chart-title">Domain-Wise Gap Analysis</h3>
-                            <div id="gapDomainAnalysis"><div class="loading-spinner"></div></div>
-                        </div>
-                        <div class="chart-card full-width">
-                            <h3 class="chart-title">Recommendations</h3>
-                            <div id="gapRecommendations"><div class="loading-spinner"></div></div>
+                    <div id="gapResults" style="display:none;">
+                        <div class="card full"><div class="card-head"><h3>Gap Summary</h3></div><div id="gapSummary"></div></div>
+                        <div class="dash-grid">
+                            <div class="card"><div class="card-head"><h3>Skills You Have</h3></div><div id="gapHaveSkills"></div></div>
+                            <div class="card"><div class="card-head"><h3>Skills You Need (GAP)</h3></div><div id="gapNeedSkills"></div></div>
+                            <div class="card full"><div class="card-head"><h3>Industry Demand vs Your Education</h3></div><div id="gapComparison"></div></div>
+                            <div class="card full"><div class="card-head"><h3>Recommendations</h3></div><div id="gapRecommendations"></div></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ABOUT PAGE -->
-        <section id="page-about" class="page">
-            <div class="page-header">
+            <!-- ===================== CURRICULUM ===================== -->
+            <section id="page-curriculum" class="page">
                 <div class="container">
-                    <h1 class="page-title">About SkillAlign</h1>
-                    <p class="page-subtitle">Smart India Hackathon 2026 - Problem Statement 26134</p>
-                </div>
-            </div>
-            <div class="container">
-                <div class="about-content">
-                    <div class="about-card">
-                        <h3>Problem Statement</h3>
-                        <p>PS 26134 focuses on Skill Development & Industry Alignment for the Government of Maharashtra. The challenge is to bridge the gap between what educational institutions teach and what industries actually require.</p>
+                    <div class="page-header">
+                        <h1>Curriculum Alignment Engine</h1>
+                        <p>Alignment = covered required skills / total required skills × 100</p>
                     </div>
-                    <div class="about-card">
-                        <h3>Our Solution</h3>
-                        <p>SkillAlign analyzes real job market data to identify skill gaps, experience requirements, and geographic distribution of opportunities. This enables targeted skill development programs and better career guidance.</p>
+                    <div class="curriculum-selector glass">
+                        <div class="filter-group"><label>Curriculum</label><select id="curriculumSelect" onchange="loadCurriculumAlignment()"><option value="">-- Select a curriculum --</option></select></div>
                     </div>
-                    <div class="about-card">
-                        <h3>Tech Stack</h3>
-                        <div class="tech-stack">
-                            <span class="tech-tag">Python</span>
-                            <span class="tech-tag">FastAPI</span>
-                            <span class="tech-tag">MongoDB Atlas</span>
-                            <span class="tech-tag">Adzuna API</span>
-                            <span class="tech-tag">GitHub Actions</span>
-                            <span class="tech-tag">HTML5</span>
-                            <span class="tech-tag">CSS3</span>
-                            <span class="tech-tag">JavaScript</span>
-                            <span class="tech-tag">Vanilla JS</span>
+                    <div id="curriculumResults" style="display:none;">
+                        <div class="kpi-grid" id="curriculumKpis"><div class="loading-spinner"></div></div>
+                        <div class="dash-grid">
+                            <div class="card full"><div class="card-head"><h3>Industry Demand vs Your Curriculum</h3></div><div id="curriculumComparison"><div class="loading-spinner"></div></div></div>
+                            <div class="card full"><div class="card-head"><h3>Recommendations</h3></div><div id="curriculumRecommendations"></div></div>
                         </div>
                     </div>
-                    <div class="about-card">
-                        <h3>Team</h3>
-                        <p>Smart India Hackathon 2026 participants working on Government of Maharashtra's skill development initiative.</p>
+                </div>
+            </section>
+
+            <!-- ===================== RECOMMENDATIONS ===================== -->
+            <section id="page-recommendations" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Skill & Course Recommendations</h1>
+                        <p>What to learn next, prioritized by real market demand</p>
+                    </div>
+                    <div class="dashboard-controls glass">
+                        <div class="filter-group"><label>Sector</label><select id="recSector" onchange="loadRecommendations()"><option value="">All Sectors</option></select></div>
+                        <div class="filter-group"><label>District</label><select id="recDistrict" onchange="loadRecommendations()"><option value="">All Districts</option></select></div>
+                    </div>
+                    <div id="recResults"><div class="loading-spinner"></div></div>
+                </div>
+            </section>
+
+            <!-- ===================== CAREER GUIDANCE ===================== -->
+            <section id="page-careerguidance" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Career Guidance</h1>
+                        <p>Get a personalized career path based on your profile and live market demand</p>
+                    </div>
+                    <div class="curriculum-selector glass">
+                        <div class="filter-group"><label>Preferred District / Location</label><select id="cgDistrict"><option value="">Anywhere in India</option></select></div>
+                        <div class="filter-group"><label>Preferred Sector</label><select id="cgSector"><option value="">Any Sector</option></select></div>
+                        <div class="filter-group"><label>Education</label><input type="text" id="cgEducation" placeholder="e.g. B.Tech CSE, BCA, Diploma, 12th"></div>
+                        <div class="filter-group"><label>Preferred Role</label><input type="text" id="cgRole" placeholder="e.g. Data Analyst, Software Engineer"></div>
+                        <div class="filter-group"><label>Your Current Skills (comma separated)</label><input type="text" id="cgSkills" placeholder="e.g. python, sql, html"></div>
+                        <div class="hero-actions" style="margin-top:16px">
+                            <button class="btn btn-primary" onclick="runCareerGuidance()">Get My Career Guidance</button>
+                            <button class="btn btn-ghost" onclick="loadCareerGuidance()">Reset</button>
+                        </div>
+                    </div>
+                    <div id="cgResults" style="display:none;margin-top:24px;">
+                        <div class="card full"><div class="card-head"><h3>Your Profile</h3></div><div id="cgSummary"></div></div>
+                        <div class="dash-grid">
+                            <div class="card"><div class="card-head"><h3>In-Demand Skills</h3></div><div id="cgDemand"></div></div>
+                            <div class="card"><div class="card-head"><h3>Skills To Learn Next</h3></div><div id="cgMissing"></div></div>
+                            <div class="card full"><div class="card-head"><h3>Top Roles & Hiring Companies</h3></div><div id="cgRoles"></div></div>
+                            <div class="card full"><div class="card-head"><h3>Suggested Career Path</h3></div><div id="cgReco"></div></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 SkillAlign - PS 26134 | Smart India Hackathon 2026 | Government of Maharashtra</p>
-        </div>
-    </footer>
+            <!-- ===================== DISTRICT INTEL ===================== -->
+            <section id="page-district" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>District Intelligence</h1>
+                        <p>Training capacity vs demand intensity across regions</p>
+                    </div>
+                    <div class="card full">
+                        <div class="card-head"><h3>District × Skill Coverage</h3><span class="card-sub">Demand-weighted view across regions</span></div>
+                        <div id="districtHeatmap"><div class="loading-spinner"></div></div>
+                    </div>
+                    <div class="card full">
+                        <div class="card-head"><h3>District Job Distribution</h3><span class="card-sub">Live openings by area</span></div>
+                        <div id="districtJobs"><div class="loading-spinner"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== ABOUT ===================== -->
+            <section id="page-about" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>About SkillAlign AI</h1>
+                        <p>Smart India Hackathon 2026 · Problem Statement 26134</p>
+                    </div>
+                    <div class="about-grid">
+                        <div class="card"><div class="card-head"><h3>Problem Statement</h3></div><p class="about-text">PS 26134 focuses on Skill Development & Industry Alignment for the Government of Maharashtra. The challenge is to bridge the gap between what educational institutions teach and what industries actually require.</p></div>
+                        <div class="card"><div class="card-head"><h3>Our Solution</h3></div><p class="about-text">SkillAlign AI analyzes live job market data to identify skill gaps, experience requirements, and geographic distribution of opportunities — enabling targeted skill development and data-driven career guidance.</p></div>
+                        <div class="card"><div class="card-head"><h3>Tech Stack</h3></div><div class="tech-tags"><span>Python</span><span>FastAPI</span><span>MongoDB Atlas</span><span>Adzuna API</span><span>GitHub Actions</span><span>HTML5</span><span>CSS3</span><span>JavaScript</span></div></div>
+                        <div class="card"><div class="card-head"><h3>Live Data</h3></div><p class="about-text">Powered by <strong id="aboutJobs">—</strong> real job postings across India and <strong id="aboutSkills">—</strong> tracked skills, updated automatically by scheduled ingestion.</p></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <p>SkillAlign AI · SIH 2026 · SIH26134 · Prototype Mode</p>
+            </div>
+        </footer>
+    </div>
 
     <script src="src/app.js"></script>
 </body>
