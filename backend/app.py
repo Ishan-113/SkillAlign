@@ -55,6 +55,53 @@ async def health_check():
     return {"status": "healthy", "service": "PS 26134 API", "version": "1.0.0"}
 
 
+@app.get("/api/db-status")
+async def db_status():
+    """Diagnostics: report MONGO env presence and test a real Atlas connection.
+
+    Returns the actual error so the live Render failure can be diagnosed from a
+    browser without shell access to the service.
+    """
+    from pymongo import MongoClient
+    import traceback
+
+    uri = os.getenv("MONGO_URI", "")
+    db_name = os.getenv("MONGO_DB_NAME", "sih134")
+
+    info = {
+        "mongo_uri_set": bool(uri),
+        "mongo_uri_scheme": uri.split("://")[0] if uri else None,
+        "mongo_uri_host": (uri.split("://")[-1].split("?")[0].split("@")[-1] if uri else None),
+        "mongo_db_name": db_name,
+        "server_timeout_ms": 15000,
+    }
+
+    if not uri:
+        info["result"] = "MONGO_URI env var is NOT set on this service"
+        return info
+
+    client = None
+    try:
+        effective_uri = uri
+        # env vars may be double-quoted if pasted into the dashboard
+        if effective_uri.startswith('"') and effective_uri.endswith('"'):
+            effective_uri = effective_uri[1:-1]
+        client = MongoClient(effective_uri, serverSelectionTimeoutMS=15000, connectTimeoutMS=10000)
+        ping = client[db_name].command("ping")
+        info["result"] = "connected"
+        info["ping"] = ping.get("ok")
+        info["db_names"] = client.list_database_names()
+    except Exception as e:
+        info["result"] = "ERROR"
+        info["error_type"] = type(e).__name__
+        info["error_message"] = str(e)
+        info["traceback"] = traceback.format_exc(limit=3)
+    finally:
+        if client is not None:
+            client.close()
+    return info
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
