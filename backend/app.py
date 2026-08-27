@@ -7,10 +7,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from routes.skills import router as skills_router
-from routes.experience import router as experience_router
-from routes.locations import router as locations_router
-from routes.insights import router as insights_router
 from routes.auth import router as auth_router
 from routes.skillgap import router as skillgap_router
 from routes.data import router as data_router
@@ -49,10 +45,6 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(skills_router, prefix="/api", tags=["Skills"])
-app.include_router(experience_router, prefix="/api", tags=["Experience"])
-app.include_router(locations_router, prefix="/api", tags=["Locations"])
-app.include_router(insights_router, prefix="/api", tags=["Insights"])
 app.include_router(skillgap_router, prefix="/api", tags=["Skill Gap"])
 app.include_router(data_router, prefix="/api", tags=["Data"])
 app.include_router(marketintel_router, prefix="/api", tags=["Market Intelligence"])

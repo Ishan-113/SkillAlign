@@ -285,6 +285,11 @@ async def dashboard(
         month_counts = Counter(j.get("posting_date", "")[:7] for j in jobs if j.get("posting_date"))
         trend = [{"period": m, "count": c} for m, c in sorted(month_counts.items())]
 
+        # Location distribution (top 10 areas)
+        loc_counts = Counter(_district_for(j.get("location", ""), j.get("title", "")) for j in jobs)
+        locations = [{"location": loc, "count": c, "percentage": round(c / max(total, 1) * 100, 1)}
+                     for loc, c in loc_counts.most_common(10)]
+
         return {
             "filters": {"district": district, "sector": sector, "time_period": time_period},
             "summary": {
@@ -298,6 +303,7 @@ async def dashboard(
                            for s, c in skills.most_common(15)],
             "companies": [{"company": c, "count": n} for c, n in companies.most_common(10)],
             "experience_distribution": [{"range": r, "count": c} for r, c in exp_ranges.items()],
+            "locations": locations,
             "job_trend": trend[-12:] if trend else [],
         }
     finally:

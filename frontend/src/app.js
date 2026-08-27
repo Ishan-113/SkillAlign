@@ -38,7 +38,6 @@ function navigateTo(page) {
     });
     currentPage = page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (page === 'analytics') loadAnalytics();
     if (page === 'dashboard') loadDashboard();
     if (page === 'industry') loadIndustry();
     if (page === 'recommendations') loadRecommendations();
@@ -77,11 +76,11 @@ async function fetchPOST(endpoint, body) {
 }
 
 async function loadHeroStats() {
-    const data = await fetchAPI('/insights');
+    const [data] = await Promise.all([fetchAPI('/dashboard'), ensureFilters()]);
     if (!data || !data.summary) return;
-    animateNumber('statJobs', data.summary.total_jobs_analyzed);
-    animateNumber('statSkills', data.summary.unique_skills_found);
-    animateNumber('statLocations', data.summary.total_locations);
+    animateNumber('statJobs', data.summary.total_jobs);
+    animateNumber('statSkills', data.summary.unique_skills);
+    animateNumber('statLocations', districtOptions.length);
 }
 
 function animateNumber(id, target) {
@@ -94,83 +93,6 @@ function animateNumber(id, target) {
         if (current >= target) { current = target; clearInterval(interval); }
         el.textContent = current;
     }, 40);
-}
-
-// ==================== ANALYTICS ====================
-async function loadAnalytics() {
-    const [skills, experience, locations, insights] = await Promise.all([
-        fetchAPI('/skills'),
-        fetchAPI('/experience'),
-        fetchAPI('/locations'),
-        fetchAPI('/insights'),
-    ]);
-    if (skills) renderSkillsChart(skills);
-    if (experience) renderExperienceChart(experience);
-    if (locations) renderLocationsChart(locations);
-    if (insights) renderInsights(insights);
-}
-
-function renderSkillsChart(data) {
-    const container = document.getElementById('skillsChart');
-    if (!data.top_skills || !data.top_skills.length) { container.innerHTML = '<p>No data</p>'; return; }
-    const maxCount = data.top_skills[0].count;
-    container.innerHTML = `<div class="bar-chart">${data.top_skills.map(s => `
-        <div class="bar-row">
-            <span class="bar-label">${s.skill}</span>
-            <div class="bar-track">
-                <div class="bar-fill skill-bar" style="width: ${(s.count / maxCount) * 100}%">${s.count} (${s.percentage}%)</div>
-            </div>
-        </div>`).join('')}</div>`;
-}
-
-function renderExperienceChart(data) {
-    const container = document.getElementById('experienceChart');
-    const colors = ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'];
-    const total = data.distribution.reduce((a, b) => a + b.count, 0) || 1;
-    let cumulative = 0;
-    const segments = data.distribution.map((d, i) => {
-        const pct = (d.count / total) * 100;
-        const offset = cumulative;
-        cumulative += pct;
-        return `<circle cx="100" cy="100" r="70" fill="none" stroke="${colors[i]}" stroke-width="24"
-            stroke-dasharray="${pct * 4.4} ${440 - pct * 4.4}" stroke-dashoffset="${-offset * 4.4}"
-            style="transition: stroke-dasharray 1s ease ${i * 0.2}s"/>`;
-    });
-    container.innerHTML = `<div class="donut-container">
-        <svg class="donut-svg" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="24"/>
-            ${segments.join('')}
-            <text x="100" y="95" text-anchor="middle" fill="white" font-size="20" font-weight="700">${data.average_experience}</text>
-            <text x="100" y="115" text-anchor="middle" fill="#94a3b8" font-size="11">avg years</text>
-        </svg>
-        <div class="donut-legend">${data.distribution.map((d, i) => `
-            <div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>
-            <span>${d.range}: ${d.count} (${d.percentage}%)</span></div>`).join('')}
-        </div></div>`;
-}
-
-function renderLocationsChart(data) {
-    const container = document.getElementById('locationsChart');
-    if (!data.distribution || !data.distribution.length) { container.innerHTML = '<p>No data</p>'; return; }
-    const maxCount = data.distribution[0].count;
-    container.innerHTML = `<div class="bar-chart">${data.distribution.map(l => `
-        <div class="bar-row">
-            <span class="bar-label">${l.location}</span>
-            <div class="bar-track">
-                <div class="bar-fill loc-bar" style="width: ${(l.count / maxCount) * 100}%">${l.count} (${l.percentage}%)</div>
-            </div>
-        </div>`).join('')}</div>`;
-}
-
-function renderInsights(data) {
-    const container = document.getElementById('insightsContainer');
-    if (!data.top_insights) { container.innerHTML = '<p>No data</p>'; return; }
-    container.innerHTML = `<div class="insights-grid">${data.top_insights.map(ins => `
-        <div class="insight-card">
-            <h4>${ins.title}</h4>
-            <div class="value">${ins.value}</div>
-            <div class="detail">${ins.detail}</div>
-        </div>`).join('')}</div>`;
 }
 
 // ==================== SHARED FILTER HELPERS ====================
@@ -223,6 +145,7 @@ async function loadDashboardData() {
     renderDashCompanies(data.companies);
     renderDashExperience(data.experience_distribution);
     renderDashTrend(data.job_trend);
+    renderDashLocations(data.locations);
 }
 
 async function applyDashboardFilters() {
@@ -289,6 +212,17 @@ function renderDashTrend(trend) {
         <div class="bar-row">
             <span class="bar-label" style="min-width:90px">${t.period}</span>
             <div class="bar-track"><div class="bar-fill loc-bar" style="width:${(t.count / maxCount) * 100}%">${t.count}</div></div>
+        </div>`).join('')}</div>`;
+}
+
+function renderDashLocations(locations) {
+    const container = document.getElementById('dashLocations');
+    if (!locations || !locations.length) { container.innerHTML = '<p>No data</p>'; return; }
+    const maxCount = Math.max(...locations.map(l => l.count));
+    container.innerHTML = `<div class="bar-chart">${locations.map(l => `
+        <div class="bar-row">
+            <span class="bar-label" style="min-width:170px">${l.location}</span>
+            <div class="bar-track"><div class="bar-fill loc-bar" style="width:${(l.count / maxCount) * 100}%">${l.count}</div></div>
         </div>`).join('')}</div>`;
 }
 

@@ -86,26 +86,6 @@ async def get_data_freshness():
         _close(db)
 
 
-@router.get("/data/universities")
-async def list_universities():
-    db = _db()
-    try:
-        unis = list(db["universities"].find({}, {"_id": 0}).sort("name", 1))
-        return {"universities": unis, "total": len(unis)}
-    finally:
-        _close(db)
-
-
-@router.get("/data/sources")
-async def list_sources():
-    db = _db()
-    try:
-        sources = list(db["curriculum_sources"].find({}, {"_id": 0}).sort("universityName", 1))
-        return {"sources": sources, "total": len(sources)}
-    finally:
-        _close(db)
-
-
 @router.get("/data/jobs")
 async def list_jobs(limit: int = 50, offset: int = 0, active_only: bool = True):
     """Return raw jobs (legacy schema + provenance) for the dashboard.

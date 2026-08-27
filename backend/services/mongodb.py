@@ -98,22 +98,8 @@ def build_indexes(database):
     jobs.create_index("status")
     jobs.create_index("lastSeenAt")
 
-    database["skills"].create_index("canonicalSkill", unique=True)
-    database["skills"].create_index("aliases")
-
     database["update_logs"].create_index([("source", 1), ("startedAt", -1)])
     database["update_logs"].create_index("dataType")
-
-    database["universities"].create_index("aisheCode", unique=True, sparse=True)
-    database["universities"].create_index("name")
-
-    database["curriculum_sources"].create_index(
-        [("universityId", 1), ("program", 1)], unique=True
-    )
-
-    database["curricular"].create_index(
-        [("universityId", 1), ("program", 1), ("academicYear", 1)]
-    )
 
     # The collection the application's skill-gap analysis actually reads.
     database["curricula"].create_index("name", unique=True)
