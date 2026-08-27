@@ -25,6 +25,28 @@ ADZUNA_RESULTS_PER_PAGE = int(os.getenv("ADZUNA_RESULTS_PER_PAGE", "50"))
 # Minimum seconds to wait between provider requests to respect rate limits.
 ADZUNA_REQUEST_DELAY = float(os.getenv("ADZUNA_REQUEST_DELAY", "1.0"))
 
+# ---------------------------------------------------------------------------
+# Adzuna free-tier quota budgets (caps + configurable safety margin).
+#
+# Adzuna's published default free-tier limits are:
+#   25 hits/minute, 250 hits/day, 1000 hits/week, 2500 hits/month.
+# Each paged search request equals one "hit", so a run that pages ADZUNA_MAX_PAGES
+# pages consumes ADZUNA_MAX_PAGES hits. To keep the pipeline running for the whole
+# month without exhausting the quota (and failing a 6-hourly cron), we budget how
+# many hits this run may consume based on what has already been used recently.
+# ---------------------------------------------------------------------------
+ADZUNA_QUOTA_DAY_HITS = int(os.getenv("ADZUNA_QUOTA_DAY_HITS", "250"))
+ADZUNA_QUOTA_WEEK_HITS = int(os.getenv("ADZUNA_QUOTA_WEEK_HITS", "1000"))
+ADZUNA_QUOTA_MONTH_HITS = int(os.getenv("ADZUNA_QUOTA_MONTH_HITS", "2500"))
+# Never use the very last hit: keep this many hits in reserve so a run that needs
+# to consume a few extra requests (retries) won't trip the hard cap and error out.
+ADZUNA_QUOTA_SAFETY_MARGIN = int(os.getenv("ADZUNA_QUOTA_SAFETY_MARGIN", "10"))
+# How far back to look at recorded hits for each window. Windows are rolling and
+# expressed in hours so the math is timezone-independent and matches cron cadence.
+QUOTA_DAY_WINDOW_HOURS = int(os.getenv("QUOTA_DAY_WINDOW_HOURS", "24"))
+QUOTA_WEEK_WINDOW_HOURS = int(os.getenv("QUOTA_WEEK_WINDOW_HOURS", "168"))
+QUOTA_MONTH_WINDOW_HOURS = int(os.getenv("QUOTA_MONTH_WINDOW_HOURS", "720"))
+
 # Allow the ingestion to run against generated/mock data when no valid API key
 # is configured. This keeps the system useful for development and demos and
 # never breaks when an external source is unavailable.

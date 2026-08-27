@@ -19,13 +19,29 @@ from .base import JobProvider, ProviderError
 from .. import config
 
 
+class RateLimitError(ProviderError):
+    """Signals the provider's rate/quota limit was reached.
+
+    The ingestion layer treats this as a graceful 'nothing more to fetch right
+    now' condition: it keeps existing data, records a note, and does NOT fail
+    the run so a quota-hit never breaks the scheduled cron.
+    """
+
+    def __init__(self, message: str = "provider rate/quota limit reached", provider: str = None):
+        super().__init__(message or "provider rate/quota limit reached", provider=provider)
+
+
 class AdzunaJobProvider(JobProvider):
     name = "adzuna"
 
-    def __init__(self, app_id: str = None, app_key: str = None, country: str = None):
+    def __init__(self, app_id: str = None, app_key: str = None, country: str = None, max_pages: int = None):
         self.app_id = app_id if app_id is not None else config.ADZUNA_APP_ID
         self.app_key = app_key if app_key is not None else config.ADZUNA_APP_KEY
         self.country = country if country is not None else config.ADZUNA_COUNTRY
+        # Cap pages for this run (quota-aware). Falls back to the config hard cap.
+        self.max_pages = max_pages if max_pages is not None else config.ADZUNA_MAX_PAGES
+        self.hits = 0  # number of HTTP requests (hits) actually made this run
+        self.rate_limited = False  # True if we stopped early due to quota
 
     def is_configured(self) -> bool:
         return bool(self.app_id and self.app_key)
@@ -39,8 +55,10 @@ class AdzunaJobProvider(JobProvider):
             "content-type": "application/json",
         }
         resp = requests.get(url, params=params, timeout=30)
+        self.hits += 1
+        # 429 is a quota/rate-limit signal: raise the non-fatal RateLimitError.
         if resp.status_code == 429:
-            raise ProviderError("rate limit hit (HTTP 429)", provider=self.name)
+            raise RateLimitError("Adzuna rate/quota limit hit (HTTP 429)", provider=self.name)
         if resp.status_code >= 500:
             raise ProviderError(f"server error (HTTP {resp.status_code})", provider=self.name)
         if resp.status_code >= 400:
@@ -53,10 +71,20 @@ class AdzunaJobProvider(JobProvider):
     def fetch_jobs(self) -> List[dict]:
         if not self.is_configured():
             raise ProviderError("Adzuna app_id/app_key not configured", provider=self.name)
+        if self.max_pages < 1:
+            # Quota budget is exhausted for this run; do not make any request.
+            self.rate_limited = True
+            return []
 
         jobs: List[dict] = []
-        for page in range(1, config.ADZUNA_MAX_PAGES + 1):
-            data = self._request(page)
+        for page in range(1, self.max_pages + 1):
+            if self.hits >= self.max_pages:
+                break
+            try:
+                data = self._request(page)
+            except RateLimitError:
+                self.rate_limited = True
+                break  # keep whatever we already fetched; do not fail the run
             results = data.get("results", [])
             if not results:
                 break

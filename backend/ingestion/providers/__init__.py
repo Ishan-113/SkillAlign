@@ -7,7 +7,7 @@ to the next configured provider.
 from typing import List
 
 from .base import JobProvider, ProviderError
-from .adzuna import AdzunaJobProvider
+from .adzuna import AdzunaJobProvider, RateLimitError
 from .mock import MockJobProvider
 
 
@@ -16,4 +16,4 @@ def default_providers() -> List[JobProvider]:
     return [AdzunaJobProvider(), MockJobProvider()]
 
 
-__all__ = ["JobProvider", "ProviderError", "AdzunaJobProvider", "MockJobProvider", "default_providers"]
+__all__ = ["JobProvider", "ProviderError", "RateLimitError", "AdzunaJobProvider", "MockJobProvider", "default_providers"]

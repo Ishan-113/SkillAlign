@@ -11,8 +11,9 @@ Responsibilities:
 from datetime import datetime, timedelta, timezone
 
 from . import config
-from .providers import JobProvider, ProviderError, default_providers
+from .providers import JobProvider, ProviderError, RateLimitError, default_providers
 from .mapper import to_app_job
+from . import quota
 
 
 def _now_iso():
@@ -33,6 +34,7 @@ class IngestionResult:
         self.expired = 0
         self.provider = None
         self.error = None
+        self.rate_limited = False
 
     def to_dict(self):
         return {
@@ -44,6 +46,7 @@ class IngestionResult:
             "expired": self.expired,
             "provider": self.provider,
             "error": self.error,
+            "rate_limited": self.rate_limited,
         }
 
 
@@ -62,19 +65,41 @@ def run_job_update(database, providers=None):
 
     write_errors = []
     last_error = None
+    rate_limited = False
+    provider_hits = 0
 
     for provider in providers:
         if not provider.is_configured():
             continue
         result.provider = provider.name
+        # Quota-aware: cap how many pages (hits) this run may consume for Adzuna
+        # so the free-tier budget is not exhausted before the month is over.
+        if provider.name == "adzuna":
+            allowed_pages = quota.max_adzuna_pages(database, source=provider.name)
+            if hasattr(provider, "max_pages"):
+                provider.max_pages = min(getattr(provider, "max_pages", config.ADZUNA_MAX_PAGES), allowed_pages)
         try:
             jobs = provider.fetch_jobs()
+        except RateLimitError as e:
+            last_error = str(e)
+            rate_limited = True
+            provider_hits = getattr(provider, "hits", 0)
+            result.failed += 1
+            _write_log(
+                database, provider.name, "jobs", started, start_ms, result,
+                status="partial", error=last_error,
+                provider_hits=provider_hits, rate_limited=True,
+            )
+            continue
         except ProviderError as e:
             last_error = str(e)
             result.failed += 1
             _write_log(database, provider.name, "jobs", started, start_ms, result, status="failed", error=last_error)
             continue
 
+        provider_hits = getattr(provider, "hits", 0)
+        rate_limited = rate_limited or getattr(provider, "rate_limited", False)
+        result.rate_limited = rate_limited
         result.fetched += len(jobs)
         seen_external = set()
 
@@ -117,6 +142,8 @@ def run_job_update(database, providers=None):
     # If a provider failed but another succeeded, log success with notes.
     if result.fetched > 0 and not last_error:
         status = "success"
+    elif rate_limited:
+        status = "partial"
     elif result.fetched == 0:
         status = "failed" if last_error else "no_data"
     else:
@@ -131,6 +158,8 @@ def run_job_update(database, providers=None):
         result,
         status=status,
         error=last_error or ("; ".join(write_errors[:3]) if write_errors else None),
+        provider_hits=provider_hits,
+        rate_limited=rate_limited,
     )
     return result
 
@@ -173,7 +202,7 @@ def _expire_stale(collection, source, seen):
     return res.modified_count
 
 
-def _write_log(database, source, data_type, started, start_ms, result, status, error):
+def _write_log(database, source, data_type, started, start_ms, result, status, error, provider_hits=0, rate_limited=False):
     completed = _now_iso()
     end_ms = _millis(datetime.now(timezone.utc))
     log = {
@@ -184,6 +213,8 @@ def _write_log(database, source, data_type, started, start_ms, result, status, e
         "startedAtMs": start_ms,
         "completedAtMs": end_ms,
         "durationMs": end_ms - start_ms,
+        "providerHits": provider_hits,
+        "rateLimited": rate_limited,
         "recordsFetched": result.fetched,
         "recordsInserted": result.inserted,
         "recordsUpdated": result.updated,

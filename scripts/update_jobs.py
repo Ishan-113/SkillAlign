@@ -40,12 +40,15 @@ def main():
 
 def json_summary(result):
     d = result.to_dict()
-    return (
+    base = (
         f"Update complete [{d['provider'] or 'no-provider'}]: "
         f"fetched={d['fetched']}, inserted={d['inserted']}, "
         f"updated={d['updated']}, skipped={d['skipped']}, "
         f"failed={d['failed']}, expired={d['expired']}"
     )
+    if d.get("rate_limited"):
+        base += " [quota limited - stopped early]"
+    return base
 
 
 if __name__ == "__main__":
