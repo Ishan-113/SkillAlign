@@ -104,7 +104,7 @@ async def db_status():
     return info
 
 
-@app.post("/api/admin/refresh-jobs")
+@app.api_route("/api/admin/refresh-jobs", methods=["GET", "POST"])
 async def admin_refresh_jobs(request: Request):
     """Trigger one job-ingestion pass (used by a free external cron scheduler).
 
