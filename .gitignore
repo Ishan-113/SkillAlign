@@ -8,3 +8,5 @@ node_modules/
 venv/
 .venv/
 *.log
+frontend/dist/
+frontend/.vite/
