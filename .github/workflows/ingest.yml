@@ -1,13 +1,19 @@
 name: Data Ingestion
 
+# NOTE: Changing this file on the default branch re-registers the schedule with
+# GitHub's scheduler. If the 6-hourly cron stops firing, push a trivial change
+# here. Scheduled runs execute the same ingestion that manual dispatch does.
 on:
   schedule:
-    # Update jobs every 6 hours (configurable via env; the UI reads actual data,
-    # never triggering external APIs).
+    # Update jobs every 6 hours (minutes are :17 of hours 0,6,12,18 UTC).
     - cron: "17 */6 * * *"
     # Update curriculum on the 1st of every month (universities change rarely).
     - cron: "0 3 1 * *"
   workflow_dispatch: {}
+
+concurrency:
+  group: data-ingestion
+  cancel-in-progress: true
 
 jobs:
   update_jobs:
