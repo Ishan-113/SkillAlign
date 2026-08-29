@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
@@ -105,22 +105,19 @@ async def db_status():
 
 
 @app.api_route("/api/admin/refresh-jobs", methods=["GET", "POST"])
-async def admin_refresh_jobs(request: Request):
+async def admin_refresh_jobs(request: Request, background_tasks: BackgroundTasks):
     """Trigger one job-ingestion pass (used by a free external cron scheduler).
 
-    Protected by the INGESTION_TOKEN env var: the caller must send it in the
-    ``X-Ingestion-Token`` header. This lets an external free scheduler (e.g.
-    cron-job.org) auto-refresh MongoDB on an interval without paying for a
-    Render cron, while keeping the endpoint private. It writes straight to the
-    ``jobs`` collection (upsert, de-duped by source+externalId) and records an
-    ``update_logs`` entry — exactly like the GitHub Actions entry point.
+    Protected by INGESTION_TOKEN: caller must send X-Ingestion-Token. The cron
+    (max 30s timeout) gets an immediate 202 response; the actual ingestion runs
+    in the background (~4 min) so the DB still updates even though the cron
+    would otherwise timeout.
     """
     expected = os.getenv("INGESTION_TOKEN", "")
     provided = request.headers.get("x-ingestion-token", "")
     if not expected or provided != expected:
         return JSONResponse({"detail": "unauthorized"}, status_code=401)
 
-    import asyncio as _asyncio
     from services.mongodb import get_ingestion_collections, build_indexes
     from ingestion.job_ingestion import run_job_update
 
@@ -129,17 +126,17 @@ async def admin_refresh_jobs(request: Request):
         try:
             build_indexes(database)
             result = run_job_update(database)
-            return result.to_dict()
+            print(f"[background ingestion] {result.to_dict()}")
         finally:
             client = getattr(database, "_sih_client", None)
             if client:
                 client.close()
 
-    result = await _asyncio.to_thread(_run)
+    background_tasks.add_task(_run)
     return {
-        "status": "ok",
+        "status": "accepted",
         "refreshed_at": datetime.now(timezone.utc).isoformat(),
-        "result": result,
+        "note": "ingestion running in background (~4 min), check update_logs for completion",
     }
 
 
